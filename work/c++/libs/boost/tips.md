@@ -95,11 +95,33 @@ Returns: s.type() == directory_file
 boost::filesystem::exists(file);
 Returns: status_known(s) && s.type() != file_not_found
 // 包含is_directory的多用
+bool isfileExist(const std::string& file_name)
+{
+  if (boost::filesystem::exists(file_name) && boost::filesystem::is_regular_file(file_name))
+  {
+    return true;
+  }
+  return false;
+}
 ```
 
 + 创建文件夹
 ```cpp
 if (!boost::filesystem::create_directory(save_path))
+    
+if (!boost::filesystem::is_directory(g_path))
+  {
+    std::cout << "\033[0;33m path doesn't exist, create it automaticallly! \033[0m" << std::endl;
+    if (!boost::filesystem::create_directories(g_path))
+    {
+      std::cout << "\033[0;31m can not create path directory, return! \033[0m" << std::endl;
+      return 0;
+    }
+    else
+    {
+      std::cout << " path: " << g_path << std::endl;
+    }
+  }
 ```
 
 + 文件复制
@@ -162,3 +184,22 @@ int main()
 boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::universal_time();
 std::cout << "differ image cost time: " << (t2 - t1).total_milliseconds() << " ms" << std::endl;
 ```
+
++ 解析string中的字符
+
+  ```cpp
+  void findAllOccurances(std::vector<std::size_t>& vec, std::string data, std::string to_search,
+                                     FindSubstr finder)
+  {
+    std::size_t pos = finder(data, to_search, 0);
+    while (pos != std::string::npos)
+    {
+      vec.emplace_back(pos);
+      pos = finder(data, to_search, pos + to_search.size());
+    }
+  }
+  std::vector<std::size_t> slash_pos;
+  findAllOccurances(slash_pos, topic_[i], "/", [&](std::string data, std::string to_search, std::size_t pos) {
+          return data.find(to_search, pos);
+        });
+  ```

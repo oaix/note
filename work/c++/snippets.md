@@ -1,4 +1,7 @@
+[TOC]
+
 ### 版权说明
+
 ```cpp
 /**
  *****************************************************************************
@@ -295,7 +298,7 @@ bool fileExists(const std::string &file)
   Method exists_test2 (posix access()): **0.202s**
   Method exists_test3 (posix stat()): **0.134s**
   ```
-  ![b142ee73](images/b142ee73.png)
+  ![b142ee73](img/b142ee73.png)
   - The `stat()` function provided the best performance on my system (Linux, compiled with g++), with a standard `fopen` call being your best bet if you for some reason refuse to use POSIX functions.
   - The performance of [boost::filesystem::exists](http://www.cplusplus.com/forum/windows/194885/) function is very close to that of stat function and it is also portable. I would recommend this solution if boost libraries is accessible from your code.
 
@@ -303,6 +306,15 @@ bool fileExists(const std::string &file)
   #include <boost/filesystem.hpp>
   boost::filesystem::path p(fname);
   boost::filesystem::exists(p)
+  
+  bool isfileExist(const std::string& file_name)
+  {
+    if (boost::filesystem::exists(file_name) && boost::filesystem::is_regular_file(file_name))
+    {
+      return true;
+    }
+    return false;
+  }
   ```
 
 ### 求一个数的整数次幂
@@ -494,6 +506,7 @@ shared_ptr<Dictionary> Dictionary::Create(Config config)
 ```
 
 ### [全排列](http://www.waitingfy.com/archives/971#3stlnext_permutation)
+
 + 最普遍的是用递归实现，不过递归效率比较低
 ```cpp
 #include "stdafx.h"
@@ -636,3 +649,109 @@ void swap(int& x , int& y)
     x ^= y;
 }
 ```
+
+### 按照一定精度写入文件
+
+```cpp
+#include <iomanip> // std::fixed << std::setprecision(6)
+void writePCD2Txt(const pcl::PointCloud<pcl::PointXYZI>& pc, const std::string& file_name)
+{
+  std::ofstream out_txt_file(file_name, std::ofstream::trunc);
+  for (auto point : pc.points)
+  {
+    out_txt_file << std::fixed << std::setprecision(6) << point.x << " " << point.y << " " << point.z << std::endl;
+  }
+  out_txt_file.close();
+}
+```
+
+
+### [按照`00000,00001`命名](https://www.cnblogs.com/yuliyang/p/4575644.html)
+
+```cpp
+std::ostringstream ostr;
+  ostr << "/" << pre_name << std::setfill('0') << std::setw(g_main_name_len) << g_frame_num << ".pcd";
+  std::cout << ostr.str() << std::endl;
+  //std::string pc_fn = g_path + "/" + std::to_string(g_frame_num) + ".pcd";
+  pcl::io::savePCDFile(g_path + ostr.str(), cloud);
+```
+
+### [生成均匀分布随机数](https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution)
+
+```cpp
+void generateUniformRandom(const float a, const float b, const unsigned int n, float* arr)
+{
+  std::random_device rd;   // obtain a seed for random number engine
+  std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
+  std::uniform_real_distribution<float> dis(a, b);
+  for (unsigned int i = 0; i < n; ++i)
+  {
+    *(arr + i) = dis(gen);
+  }
+}
+```
+
+### [位操作](https://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit)
+
+https://zh.cppreference.com/w/cpp/utility/bitset
+
++ 求unsigned int二进制中１的个数
+
+  ```cpp
+  int BitCount4(unsigned int n) //４bits处理一次
+  {
+      unsigned int table[16] = 
+      {
+          0, 1, 1, 2, 
+          1, 2, 2, 3, 
+          1, 2, 2, 3, 
+          2, 3, 3, 4
+      } ;
+  
+      unsigned int count =0 ;
+      while (n)
+      {
+          count += table[n &0xf] ;
+          n >>=4 ;
+      }
+      return count ;
+  }
+  
+  int BitCount2(unsigned int n)
+  {
+      unsigned int c =0 ;
+      for (c =0; n; ++c)
+      {
+          n &= (n -1) ; // 清除最低位的1
+      }
+      return c ;
+  }
+  ```
+
++ [有用的位操作](https://juejin.im/post/5a14dc876fb9a044fa197f2e)
+
+  x << 1 | 1  在最后加一个1  101101->1011011
+
+  x & -2  把最后一位变成0  101101->101100
+
+  x | (1 << (k-1))  把右数第k位变成1  101001->101101,k=3
+
+  x & ~ (1 << (k-1))   把右数第k位变成0   101101->101001,k=3
+
+  x ^(1 <<(k-1))   右数第k位取反  101001->101101,k=3
+
+  x | ((1 << k)-1)  把末k位变成1  101001->101111,k=4
+
+  x ^ (1 << k-1)  末k位取反   101001->100110,k=4
+
+  ![1562039114504](img/1562039114504.png)
+
+### lambda改写sort比较函数
+
+```c++
+std::sort(board_id_angle_v.begin(), board_id_angle_v.end(),
+            [](const std::pair<unsigned int, float>& v1, const std::pair<unsigned int, float>& v2) {
+              return v1.first < v2.first;
+            });
+```
+

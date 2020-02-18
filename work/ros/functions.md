@@ -91,7 +91,7 @@ cv::Mat image = cv_bridge::toCvCopy(img_msg, sensor_msgs::image_encodings::BGR8)
 const sensor_msgs::ImageConstPtr img0_ptr; // message
 boost::shared_ptr<cv_bridge::CvImage const> image_v = cv_bridge::toCvShare(img0_ptr, sensor_msgs::image_encodings::BGR8);
 ```
-![7363e483](images/7363e483.png)
+![7363e483](img/7363e483.png)
 
 5. cv::Mat转换为sensor_msgs::ImageConstPtr img_msg
 ```cpp
@@ -127,4 +127,4 @@ cv::Mat raw_image = cv::imdecode(cv::Mat(img_ptr->data), CV_LOAD_IMAGE_UNCHANGED
 ```
 [compressed_image_transport - ROS Wiki](http://wiki.ros.org/compressed_image_transport)
 [ros-message-transport/compressed_publisher.cpp at master · ethz-asl/ros-message-transport · GitHub](https://github.com/ethz-asl/ros-message-transport/blob/master/compressed_imagem_transport/src/compressed_publisher.cpp)
-![095f57e7](images/095f57e7.png)
+![095f57e7](img/095f57e7.png)

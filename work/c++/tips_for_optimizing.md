@@ -2,13 +2,13 @@
 Make the common case fast and the rare case correct.
 ### Code for corectness first, then optimize
 先快速实现功能再优化，特别要优化高频率调用的函数。找到耗时最大的部分，针对其进行优化。
-![b25a7716](images/b25a7716.png)
+![b25a7716](img/b25a7716.png)
 
 ### spend at least twice as long optimizing code as they spend writing code
 
 ### Jumps/branches are expensive. Minimize their use whenever possible
 
-![f5f90637](images/f5f90637.png)
+![f5f90637](img/f5f90637.png)
 跳转和分支开销很大，尽量少使用：
 (1) 函数调用2次跳转+堆栈保存
 (2) 使用迭代替代递归调用
@@ -17,12 +17,12 @@ Make the common case fast and the rare case correct.
 (5) 多重if ... else, 对于末尾的case需要多次跳转，使用switch statement替代，或者最常出现的情况放在最上面
 
 ### Think about the order of array indices
-![11f8873e](images/11f8873e.png)
+![11f8873e](img/11f8873e.png)
 数组索引顺序：
 安装数据物理存储方式来访问数据，可以提速一个数量级，甚至更快.
 
 ### Think about instruction-level-parallelism
-![80d8cab5](images/80d8cab5.png)
+![80d8cab5](img/80d8cab5.png)
 指令级别的并行：
 (1) 将循环展开，二重循环，将第二重展开
 (2) 使用inline function，自己展开
@@ -59,13 +59,13 @@ inline int S::square(int s) // use inline prefix
 
 ### Avoid/reduce the number of local variables
 
-![a5b13de8](images/a5b13de8.png)
+![a5b13de8](img/a5b13de8.png)
 避免或者减少使用局部变量：
 local variables一般保存在stack栈，如果足够少，它们将保持在寄存器registers上，这样函数既可以提高数据访问速度，也可以避免保存和恢复堆栈的额外开销。
 
 ### Try to avoid casting where possible
 
-![5d1785d1](images/5d1785d1.png)
+![5d1785d1](img/5d1785d1.png)
 避免类型转换：
 (1) int和float 整数和浮点指令通常在不同的寄存器上运行，每次类型转换都需要拷贝一次
 (2) 短字节的int, 如char, short, 计算时需要也需要占用整个寄存器，而且需要填充相应的位长，计算后再截取存储到内存，相对于长字节类型变量占用的内存，这种消耗跟大，所以要用std::size_t，对于大块数据，仍然要使用最小的数据类型．
@@ -75,12 +75,12 @@ Use initialization instead of assignment (Color c(black); is faster than Color c
 声明对象变量时：初始化比赋值快,少调用一次赋值函数
 
 ### Make default class constructors as lightweight as possible
-![30443300](images/30443300.png)
+![30443300](img/30443300.png)
 尽量使类的默认构造函数简单：特别是高频率使用的类，使用初始化列表
 Use shift operations >> and << instead of integer multiplication and division, where possible.使用位操作，代替整数的乘除法。
 
 ### For most classes, use the operators += , -= , *= , and /= , instead of the operators + , - , * , and / .
-![1ef97bd1](images/1ef97bd1.png)
+![1ef97bd1](img/1ef97bd1.png)
 
 ### For basic data types, use the operators + , - , * , and / instead of the operators += , -= , *= , and /= .
 [三种+1汇编解析](https://softwareengineering.stackexchange.com/questions/134118/why-are-shortcuts-like-x-y-considered-good-practice)：
@@ -102,40 +102,25 @@ INC (D); //Just "tick" a memory located counter
 ```
 
 ### For objects, use the prefix operator (++obj) instead of the postfix operator (obj++)
-![ec7906b3](images/ec7906b3.png)
+![ec7906b3](img/ec7906b3.png)
 
 ### Avoid dynamic memory allocation during computation
-![82f975a1](images/82f975a1.png)
+![82f975a1](img/82f975a1.png)
 
 ### Try to early loop termination and early function returns
 
 ### Simplify your equations on paper
-![0a866b38](images/0a866b38.png)
+![0a866b38](img/0a866b38.png)
 
 
 ### The difference between math on integers, fixed points, 32-bit floats, and 64-bit doubles is not as big as you might think
-![35bf8451](images/35bf8451.png)
+![35bf8451](img/35bf8451.png)
 
 ### Consider ways of rephrasing your math to eliminate expensive operations
 
-![41a94283](images/41a94283.png)
+![41a94283](img/41a94283.png)
 
 
 ### 将循环展开,循环合并
-![858cf2d1](images/858cf2d1.png)
+![858cf2d1](img/858cf2d1.png)
 
-### [reduction初值](http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-reduction.html#Initialvalueforreductions)
-
-![fb317926](images/fb317926.png)
-OpenMp将对reduction声明的变量在每个thread中新建一个副本，使用上面的规则对其进行初始化；每个thread使用该副本作为局部变量进行运算；最后将各个局部副本通过reduction声明的运算进行处理，再与global变量进行处理，恢复到global.
-
-### [controlling thread data](http://pages.tacc.utexas.edu/~eijkhout/pcse/html/omp-data.html)
-
-+ shared data
-  In a parallel region, any data declared outside it will be shared: any thread using a variable  x will access the same memory location associated with that variable.
-  在parallel以外声明的变量都是shared,所有线程将访问同一位置。
-
-+ private data
-  在thread内部声明的变量只隶属于该线程。
-
-  ![45999b5b](images/45999b5b.png)

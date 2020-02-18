@@ -1,6 +1,9 @@
+[TOC]
+
 # Vim
 
 ## [spf13-vim3](http://vim.spf13.com/)
+
 + install
   ```sh
   curl http://j.mp/spf13-vim3 -L -o - | sh
@@ -17,6 +20,216 @@
   在home目录下,用`.vimrc.local`文件覆盖以前的配置.[.vimrc.local](vimrc.local)
   安装`.vimrc.local`中自定义的插件,`:PluginInstll`
 
+## [space-vim](https://github.com/SpaceVim/SpaceVim)
+
+该仓库比较新，一直在维护更新，推荐使用这个。
+
+[Use Vim as a Python IDE](http://liuchengxu.org/posts/use-vim-as-a-python-ide/)
+
+### [neovim](https://github.com/neovim/neovim/wiki/Installing-Neovim#toc28)
+
+```sh
+sudo apt-get install software-properties-common
+sudo add-apt-repository ppa:neovim-ppa/stable
+sudo apt-get update
+sudo apt-get install neovim # 安装后需重启
+
+# spacevim
+su - robosense -c curl -sLf https://spacevim.org/cn/install.sh | bash
+```
+
+安装neovim后需重启，查看`~/.local/share/nvim/shada/main.shada`是否存在，该文件影响`spacevim`插件的安装。
+
+[main.shada](https://github.com/neovim/neovim/issues/9912)
+
+[spacevim install](https://github.com/SpaceVim/SpaceVim/blob/master/README.cn.md#toc8)
+
+https://www.diycode.cc/topics/867
+
+
+
+## [Setup VIM8+SpaceVIM on Ubuntu 16.04](https://www.jianshu.com/p/3d24a3eb0c05)
+
+在ubuntu16.04 上编译vim8(python2+,lua+),然后安装SpaceVIM
+
+### [Install VIM8](https://gist.github.com/erickpatrick/5e0923d3645eaf4056b6b9fee4c91e2f)
+
+https://github.com/ycm-core/YouCompleteMe/wiki/Building-Vim-from-source
+
++ dependencies
+
+  ```sh
+  sudo apt-get install libncurses5-dev libgnome2-dev libgnomeui-dev libgtk2.0-dev libatk1.0-dev \
+  libbonoboui2-dev libcairo2-dev libx11-dev libxpm-dev libxt-dev \
+  ruby-dev lua5.1 liblua5.1-dev libperl-dev libncurses5-dev libncursesw5-dev
+  
+  sudo apt-get install python3-pip
+  sudo apt-get install python-pip build-essential
+  ```
+
++ build
+
+[下载最新release版本的vim](https://github.com/vim/vim/releases)，然后解压编译安装
+
+```sh
+./configure --with-features=huge \
+          --enable-multibyte \
+          --enable-rubyinterp=yes \
+          --enable-python3interp=yes \
+          --with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu \
+          --enable-perlinterp=yes \
+          --enable-luainterp=yes \
+          --enable-cscope --prefix=/usr \
+          --enable-fail-if-missing
+```
+
+
+
++ Remove vim7 packages. This may cause some problem when using spacevim, remove them then install vim8.
+
+  ```sh
+  sudo apt list --installed|grep vim    
+  sudo apt remove vim-\*   
+  ```
+
++ Install vim8
+
+  ```sh
+  make
+  sudo make install
+  vim --version
+  ```
+
+### Install SpaceVIM
+
+https://spacevim.org/cn/quick-start-guide/#%E5%9C%A8%E7%BA%BF%E6%95%99%E7%A8%8B
+
+https://spacevim.org/quick-start-guide/
+
+```sh
+# curl -sLf https://spacevim.org/install.sh | bash
+curl -sLf https://spacevim.org/cn/install.sh | bash # cn
+curl -sLf https://spacevim.org/install.sh | bash # en
+
+git clone https://github.com/liuchengxu/space-vim.git ~/.space-vim
+cd ~/.space-vim
+make vim     # install space-vim for Vim
+make neovim  # install space-vim for NeoVim
+```
+
+
+
+### Install Powerline font
+
+```sh
+# clone
+git clone https://github.com/powerline/fonts.git
+# install
+cd fonts
+./install.sh
+# clean-up a bit
+cd ..
+rm -rf fonts
+```
+
+
+
+### Install clangd
+
+```sh
+sudo apt-get install clang-tools-6.0
+```
+
+
+
+### config for c++
+
+```
+
+  #=============================================================================
+# dark_powered.toml --- dark powered configuration example for SpaceVim
+# Copyright (c) 2016-2017 Wang Shidong & Contributors
+# Author: Wang Shidong < wsdjeg at 163.com >
+# URL: https://spacevim.org
+# License: GPLv3
+#=============================================================================
+
+# All SpaceVim option below [option] section
+[options]
+    # set spacevim theme. by default colorscheme layer is not loaded,
+    # if you want to use more colorscheme, please load the colorscheme
+    # layer
+    colorscheme = "gruvbox"
+    colorscheme_bg = "dark"
+    # Disable guicolors in basic mode, many terminal do not support 24bit
+    # true colors
+    enable_guicolors = true
+    # Disable statusline separator, if you want to use other value, please
+    # install nerd fonts
+    statusline_separator = "arrow"
+    statusline_inactive_separator = "arrow"
+    buffer_index_type = 4
+    enable_tabline_filetype_icon = true
+    enable_statusline_mode = false
+
+    filemanager = "nerdtree"
+    filetree_direction = "left"
+
+# Enable autocomplete layer
+[[layers]]
+name = 'autocomplete'
+auto-completion-return-key-behavior = "complete"
+auto-completion-tab-key-behavior = "smart"
+
+[[layers]]
+name = 'shell'
+default_position = 'top'
+default_height = 30
+
+
+# c/c++
+[[layers]]
+  name = "lang#c"
+
+[[layers]]
+  name = "lsp"
+  filetypes = ["c", "cpp", "cu"]
+  [layers.override_cmd]
+    c = ["clangd-6.0" ]
+    cpp = ["clangd-6.0"]
+    cu = ["clangd-6.0"]
+
+[[layers]]
+  name = "format"
+  
+[[layers]]
+  name = "default"
+
+# python
+[[layers]]
+  name = "lang#python"
+
+# unite
+[[layers]]
+  name = "unite"
+
+[[layers]]
+  name = "git"
+
+[[layers]]
+  name = "tags"
+
+[[layers]]
+  name = "gtags"
+  gtagslabel = "ctags"
+
+[[layers]]
+  name = "cscope"
+
+```
+
+
+
 ## Plugin
 
 ### 插件安装
@@ -25,8 +238,8 @@ bundle分为三类，比较常用就是第二种：
 1. 在Github vim-scripts 用户下的repos,只需要写出repos名称
 2. 在Github其他用户下的repos, 需要写出”用户名/repos名”
 3. 不在Github上的插件，需要写出git全路径
-  ![7c33a588](images/7c33a588.png)
-  打开vim，运行:BundleInstall
+    ![7c33a588](img/7c33a588.png)
+    打开vim，运行:BundleInstall
 
 ### YCM
 + download
@@ -115,7 +328,7 @@ sudo apt-get install llvm-6.0-dev
 ```
 :retab
 ```
-![ea203864](images/ea203864.png)
+![ea203864](img/ea203864.png)
 
 + vim中执行单个shell命令
   `:!{command}` `:!ls`
@@ -168,3 +381,90 @@ inoremap <expr> k ((pumvisible())?("\<C-p>"):("k"))
   _git:47: __git_aliases_and_commands: function definition file not found
   _git:47: __git_aliases_and_commands: function definition file not found
   `rm ~/.zcompdump`
+
+
+
+## [Space-Vim](https://spacevim.org/cn/documentation/)
+
+https://spacevim.org/cn/layers/
+
+### [搜索unite](https://spacevim.org/cn/layers/unite/)
+
+![1571486085699](img/1571486085699.png)
+
+### [使用系统clipboard](https://github.com/liuchengxu/space-vim/issues/126)
+
+在plugin/default.vim添加如下设置：
+
+https://unix.stackexchange.com/questions/139578/copy-paste-for-vim-is-not-working-when-mouse-set-mouse-a-is-on
+
+```sh
+set clipboard=unnamedplus,unnamed
+set clipboard+=unnamed
+
+set mouse=r　# set mouse=v 设置使用鼠标进行复制粘贴
+
+```
+
+
+
+### [跳转gtags](https://spacevim.org/cn/layers/gtags/)
+
+```sh
+sudo apt-get install global
+sudo apt-get install exuberant-ctags python-pygments
+
+"-------------ctags------------------------
+set tags+=~/.ctags/opencv
+set tags+=~/.ctags/pcl
+set tags+=~/.ctags/ros
+set tags+=~/.ctags/eigen
+set path+=/usr/include/pcl-1.7
+set path+=/usr/include/opencv2
+set path+=/opt/ros/kinetic/include
+set path+=/usr/include/c++/5
+autocmd BufEnter * silent! lcd %:p:h
+```
+
+## [vscode_vim](https://zhuanlan.zhihu.com/p/35147027)
+
+### 快捷键冲突
+
+```json
+"vim.useCtrlKeys": true,
+"vim.handleKeys": {
+        "<C-r>": true, # 使用vim的ctrl+r
+        "<C-f>": false, # 使用vscode的ctrl+f
+ },
+```
+
+可以[VSCode 快捷键绑定](https://geek-docs.com/vscode/vscode-tutorials/vscode-shortcut-key-binding.html)，其中比较重要的是`when`条件:
+
++ [vscode](https://code.visualstudio.com/docs/getstarted/keybindings#_when-clause-contexts)
+
++ vim
+
+  当不知道使用什么条件时，可参考其他已有的命令进行设置。
+
+  vim.use<C-f>
+
+  editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode != 'Insert'
+
+  vim.active
+
+  vim.mode == ‘Normal’
+
+  vim.mode == ‘Insert’
+
+  vim.mode == ‘Visual’
+
+  vim.mode == ‘Command’
+
+
+
+##[clang-format](http://startheap.com/2018/08/17/The-method-by-which-vim-configures-clang-format-under-Linux/)
+
+```sh
+clang-format -style=file -i `find . -type f -regex ".*\.\(cpp\|h\)"`
+```
+

@@ -1,15 +1,20 @@
-# Tips
-1. ROS函数输出参数使用指针传递，而不是引用，Output arguments to methods / functions (i.e., variables that the function can modify) are passed by pointer, not by reference；
-  如果是引用传递，　调用者在不看函数原型的情况下，无法分辨该参数是否可以被修改。输入参数通常使用值或者const reference.
+[TOC]
 
-2. catkin package
-  For a package to be considered a catkin package it must meet a few requirements:
+# Tips
+
+ROS函数输出参数使用指针传递，而不是引用，Output arguments to methods / functions (i.e., variables that the function can modify) are passed by pointer, not by reference；
+如果是引用传递，　调用者在不看函数原型的情况下，无法分辨该参数是否可以被修改。输入参数通常使用值或者const reference.
+
+## catkin package
+For a package to be considered a catkin package it must meet a few requirements:
+
    + The package must contain a catkin compliant package.xml file. This package.xml file provides meta information about the package.
    + The package must contain a CMakeLists.txt which uses catkin. Catkin metapackages must have a boilerplate CMakeLists.txt file.
    + There can be no more than one package in each folder. This means no nested packages nor multiple packages sharing the same directory
 
-3. [catkin_EXPORTED_TARGETS](http://docs.ros.org/jade/api/catkin/html/howto/format2/cpp_msg_dependencies.html)
-  For C++ access to ROS messages, CMake needs to find the message or service headers:
+## [catkin_EXPORTED_TARGETS](http://docs.ros.org/jade/api/catkin/html/howto/format2/cpp_msg_dependencies.html)
+For C++ access to ROS messages, CMake needs to find the message or service headers:
+
 ```cmake
 find_package(catkin REQUIRED COMPONENTS std_msgs sensor_msgs)
 include_directories(include ${catkin_INCLUDE_DIRS}) 
@@ -27,23 +32,20 @@ add_dependencies(test_system_node ${catkin_EXPORTED_TARGETS})
 target_link_libraries(test_system_node ${catkin_LIBRARIES})
 ```
 
-4. nodelet
-  http://wiki.ros.org/nodelet
+## nodelet
+http://wiki.ros.org/nodelet
   http://wiki.ros.org/nodelet/Tutorials/Running%20a%20nodelet
   http://www.clearpathrobotics.com/assets/guides/ros/Nodelet%20Everything.html
   https://blog.csdn.net/yiranhaiziqi/article/details/53308657
 
-5. [metapackage](http://wiki.ros.org/catkin/package.xml#Metapackages)
-  A good use for metapackages is to group the major components of your robot and then provide a comprehensive grouping for your whole system.
+## [metapackage](http://wiki.ros.org/catkin/package.xml#Metapackages)
+A good use for metapackages is to group the major components of your robot and then provide a comprehensive grouping for your whole system.
   group multiple packages as a single logical package, Catkin packages must depend directly on the packages they use, not on any metapackages. but metapackages can depend on other metapackages. metapackage可以依赖其他metapackage, 普通package不能依赖于matepackage.
-+ CMakeLists.txt
-```cmake
-cmake_minimum_required(VERSION 2.8.3)
-project(velodyne)
-find_package(catkin REQUIRED)
-catkin_metapackage()
-```
-+ package.xml
+
+
+
+## package.xml
+
 ```xml
 <package format="2">
   <name>velodyne</name>
@@ -75,22 +77,33 @@ Because the metapackage **CMakeLists.txt** contains a catkin macro, its package.
 Additional buildtool, build or test dependencies are not permitted.
 Metapackages list all packages or other metapackages in their group using <run_depend> tags.
 
-6. `cv_bridge::CvImage`的编码可以是`opencv`中的类型
+
+
+## publish image
+
++ `cv_bridge::CvImage`的编码可以是`opencv`中的类型
   `sensor_msgs::image_encodings::TYPE_32FC1`
 
-7. `sensor_msgs::Image`可以有２种publish方式
-+ ros::Publisher
-```cpp
-ros::Publisher pub = nh_.advertise<sensor_msgs::Image>("/color_mat", 10);
-```
-+ image_transport::ImageTransport
-```cpp
-image_transport::ImageTransport it(nh);
-image_transport::Publisher img_intenstiy_pub = it.advertise("img_intensity", 10);
-```
++ `sensor_msgs::Image`可以有２种publish方式
 
-8. ros 同步`message_filters::sync_policies::ApproximateTime`
-  `<depend>message_filters</depend>`
+  - ros::Publisher
+
+    ```sh
+    ros::Publisher pub = nh_.advertise<sensor_msgs::Image>("/color_mat", 10);
+    ```
+
+
+  - image_transport::ImageTransport
+
+    ```sh
+    image_transport::ImageTransport it(nh);
+    image_transport::Publisher img_intenstiy_pub = it.advertise("img_intensity", 10);
+    ```
+
+
+## ros 同步`message_filters::sync_policies::ApproximateTime`
+`<depend>message_filters</depend>`
+
 ```cpp
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
@@ -109,7 +122,10 @@ sync_.reset(new Sync(MySyncPolicy(10), pc_sub_, img_sub_[0], img_sub_[1], img_su
   sync_->registerCallback(boost::bind(&SyncPointCloudImages::callback, this, _1, _2, _3, _4, _5, _6));
 ```
 
-9. cmakelists查看对应的文件是否存在
+
+
+## cmakelists查看对应的文件是否存在
+
 ```
 if (CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)
@@ -122,7 +138,10 @@ if (CATKIN_ENABLE_TESTING)
 endif()
 ```
 
-10. 重新定义`ctl + c`
+
+
+## 重新定义`ctl + c`
+
 ```cpp
 SyncImagePointCloud* g_sync_img_pc;
 void mySigintHandler(int sig)
@@ -137,8 +156,11 @@ void mySigintHandler(int sig)
 
 ```
 
-11. [callback signature](http://wiki.ros.org/roscpp/Overview/Publishers%20and%20Subscribers)
-    合法的回调信号
+
+
+## [callback signature](http://wiki.ros.org/roscpp/Overview/Publishers%20and%20Subscribers)
+合法的回调信号
+
 ```cpp
 void callback(boost::shared_ptr<std_msgs::String const>);
 void callback(std_msgs::StringConstPtr);
@@ -158,8 +180,11 @@ void callback(std_msgs::String::Ptr);
 void callback(const ros::MessageEvent<std_msgs::String>&);
 ```
 
-12. [callback types](http://wiki.ros.org/roscpp/Overview/Publishers%20and%20Subscribers)
-    roscpp supports any callback supported by boost::function:
+
+
+## [callback types](http://wiki.ros.org/roscpp/Overview/Publishers%20and%20Subscribers)
+roscpp supports any callback supported by boost::function:
+
   + functions
   + class methods
   + functor objects (including boost::bind)仿函数对象
@@ -179,8 +204,11 @@ ros::Subscriber sub = nh.subscribe<std_msgs::String>("my_topic", 1, Foo());
   ```
 Note: when using functor objects (like boost::bind, for example) you must explicitly specify the message type as a template argument, because the compiler cannot deduce it in this case.
 
-13. [rosbag namespace](http://docs.ros.org/diamondback/api/rosbag/html/c++/namespacerosbag.html#a9054d4b91cf6fa6f35afc3b9b16d0280)
-    [rosbag/Cookbook - ROS Wiki](http://wiki.ros.org/rosbag/Cookbook)
+
+
+## [rosbag namespace](http://docs.ros.org/diamondback/api/rosbag/html/c++/namespacerosbag.html#a9054d4b91cf6fa6f35afc3b9b16d0280)
+[rosbag/Cookbook - ROS Wiki](http://wiki.ros.org/rosbag/Cookbook)
+
 ```cpp
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
@@ -218,8 +246,11 @@ BOOST_FOREACH(const rosbag::ConnectionInfo *info, connection_infos)
 }
 ```
 
-+ [image_transport](http://wiki.ros.org/image_transport)
-  利用此包处理图像消息，
+
+
+## [image_transport](http://wiki.ros.org/image_transport)
+利用此包处理图像消息，
+
 ```cpp
   <depend>image_transport</depend>
    // Use the image_transport classes instead.
@@ -238,8 +269,10 @@ BOOST_FOREACH(const rosbag::ConnectionInfo *info, connection_infos)
 ```
 
 
-+ [dynamic_reconfigure](http://wiki.ros.org/dynamic_reconfigure/Tutorials)
-  动态配置参数
+
+## [dynamic_reconfigure](http://wiki.ros.org/dynamic_reconfigure/Tutorials)
+动态配置参数
+
 ```xml
 <depend>dynamic_reconfigure</depend>
 ```
@@ -257,6 +290,7 @@ BOOST_FOREACH(const rosbag::ConnectionInfo *info, connection_infos)
   [image_pipeline/image_proc/src at indigo · ros-perception/image_pipeline · GitHub](https://github.com/ros-perception/image_pipeline/tree/indigo/image_proc/src)
 
 
+
 ## plugin
 
 + [PlotJuggler](https://github.com/facontidavide/PlotJuggler)
@@ -264,3 +298,30 @@ BOOST_FOREACH(const rosbag::ConnectionInfo *info, connection_infos)
 sudo apt-get install ros-kinetic-plotjuggler 
 rosrun plotjuggler PlotJuggler # To run the application, use the command:
 ```
+
+
+
+## [使用rostopic 命令发布消息](http://wiki.ros.org/rostopic)
+
+pub <topic-name> <topic-type> [data...]
+
+发布相机触发消息：
+
+```xml
+# camera trigger time and image sequence
+
+# valid flag of trigger
+uint32 valid_trigger
+
+#sequence ID: consecutively increasing ID
+uint32 seq
+
+# stamp of trigger
+time stamp
+
+```
+
+```sh
+ rostopic pub /camera_front_trigger_msg camera_trigger_msgs/cameraTrigger '{valid_trigger: 1, seq: 0, stamp: 0}' -r 10
+```
+

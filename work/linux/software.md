@@ -1,3 +1,5 @@
+[TOC]
+
 ## Useful Software
 
 ### SimpleScreenRecorder 录屏软件
@@ -34,9 +36,9 @@ sudo ppa-purge ppa:otto-kesselgulasch/gimp
 
 ### [印象笔记chrome插件](https://jingyan.baidu.com/article/546ae18527e4811149f28c18.html)
 切换到国内账户,必须保证google chrome的语言是简体中文,点击插件图标时,才有:
-![33fb570a](images/33fb570a.png)
+![33fb570a](img/33fb570a.png)
 
-![1aedfa9e](images/1aedfa9e.png)
+![1aedfa9e](img/1aedfa9e.png)j
 
 
 
@@ -90,7 +92,6 @@ i guess that you can understand what you do according to read the config code ab
 
 Put the `config` of terminal in `/home/robosense/.config/terminator/config`
 
-
 ***
 
 + Test
@@ -135,8 +136,8 @@ gist id: 29a45cd1615a7273c6e9d345a25f5df3
   在chrome的地址栏中键入BM命令后，通过Bookmark Search插件输入相应的关键词后，快速地搜索chrome书签栏中存在的书签名称中包含该关键词的的书签列表，从而快速地帮助用户从众多的chrome书签中，快速地找到所需要的网址.
   Holmes
 
-
 ### [trash-cli](https://www.tecmint.com/trash-cli-manage-linux-trash-from-command-line/)
+
 ```sh
 trash-put           #trash files and directories.
 trash-empty         #empty the trashcan(s).
@@ -148,3 +149,20 @@ git clone https://github.com/andreafrancia/trash-cli.git
 cd trash-cli
 sudo python setup.py install
 ```
+
+
+
+### [guvcview](http://guvcview.sourceforge.net/Doc.html)
+
+```sh
+sudo add-apt-repository ppa:pj-assis/ppa
+sudo apt-get update
+sudo apt-get install guvcview # gtk3
+sudo apt-get install guvcview-qt # qt5
+```
+
++ dependency
+
+  ```sh
+  sudo apt-get install intltool autotools-dev libsdl2-dev libsfml-dev libgtk-3-dev portaudio19-dev libpng12-dev libavcodec-dev libavutil-dev libv4l-dev libudev-dev libusb-1.0-0-dev libpulse-dev libgsl0-dev
+  ```

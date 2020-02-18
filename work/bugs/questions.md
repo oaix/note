@@ -1,3 +1,5 @@
+[TOC]
+
 # Questions
 
 1. Ubuntu14.04安装ros indigo和annconda使得catkin_make时，Python版本出错
@@ -84,7 +86,6 @@ source devel/setup.zsh
 
 9. void findContours(InputOutputArray image, OutputArrayOfArrays contours, OutputArray hierarchy, int mode, int method, Point offset=Point())
     https://docs.opencv.org/2.4/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html?highlight=findcontours#void 
-    ![750984a9.png](:storage/6802cf90-ff05-4581-ad3b-2c0d8bfe3fdb/750984a9.png)
     最后一个是parent的索引值
 
 
@@ -113,7 +114,7 @@ source devel/setup.zsh
     https://github.com/SpiderLabs/ModSecurity-nginx/issues/16
     修改rules文件中的
     直接在最有一句末尾添加 `--dpkg-shlibdeps-params=--ignore-missing-info`
-    override_dh_shlibdeps:
+    override_dh_shlibdeps
 ```
 # In case we're installing to a non-standard location, look for a setup.sh
 # in the install tree that was dropped by catkin, and source it.  It will
@@ -153,7 +154,7 @@ memcpy(image_dest.data, image_src.data, sizeof(unsigned char)* width*height)
 sudo add-apt-repository ppa:yannubuntu/boot-repair && sudo apt-get update
 sudo apt-get install -y boot-repair && boot-repair  
 ```
-![57eed7cc](images/57eed7cc.png)
+![57eed7cc](img/57eed7cc.png)
 
 16. U盘修复Ubuntu下
     用gparted将u盘格式化为fat32
@@ -195,7 +196,7 @@ net.core.rmem_max=188743680 # 180M
 net.core.rmem_default=188743680 # 一定要设置该值
 ```
 最大的buffer size = 2^32-1
-![0804d937](images/0804d937-1559140213973.png)
+![0804d937](img/0804d937-1559140213973.png)
 Check the current UDP/IP receive buffer default and limit by typing the following commands:
 
 ```sh
@@ -217,7 +218,9 @@ sudo apt-get remove fcitx-ui-qimpanel
 ```
 
 21. 由转换矩阵得到欧拉角和平移向量
-    (1) pcl的函数此种方法默认返回0,1,2的旋转顺序
+    (1) pcl的函数此种方法默认返回zyx的旋转顺序
+
+    ![1560218907017](img/1560218907017.png)
 ```cpp
 void pcl::getTranslationAndEulerAngles (const Eigen::Affine3f& t, 
                                       float& x, float& y, float& z, 
@@ -231,7 +234,7 @@ void pcl::getTranslationAndEulerAngles (const Eigen::Affine3f& t,
      yaw   = atan2f(t(1,0), t(0,0));  // [-pi, pi]
    }
 ```
-(2) Eigen的矩阵成员函数eulerAngles()
+  (2) Eigen的矩阵成员函数eulerAngles()返回zyx的旋转顺序
 ```cpp
 Eigen::Vector3d angle = rotation.eulerAngles(0, 1, 2); // [0, pi], [-pi, pi], [-pi, pi]
 Eigen::Quaterniond ag = Eigen::AngleAxisd(angle(0),  Eigen::Vector3d::UnitX())
@@ -239,3 +242,46 @@ Eigen::Quaterniond ag = Eigen::AngleAxisd(angle(0),  Eigen::Vector3d::UnitX())
                              *  Eigen::AngleAxisd(angle(2), Eigen::Vector3d::UnitZ());
 Eigen::Matrix4d rotation = ag.matrix();
 ```
+
+
+
+22. [pcl+cuda时vtk的definitions终止nvcc](https://github.com/PointCloudLibrary/pcl/issues/776)
+
+    https://www.jianshu.com/p/1dc40d2b78c8
+
+    在CmakeLists.txt中添加如下内容:
+
+    ```cmake
+    get_directory_property(dir_defs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS)
+    set(vtk_flags)
+    foreach(it ${dir_defs})
+        if(it MATCHES "vtk*")
+        list(APPEND vtk_flags ${it})
+        endif()
+    endforeach()
+    
+    foreach(d ${vtk_flags})
+        remove_definitions(-D${d})
+    endforeach()
+    ```
+
+
+
+## Coding
+
+### [opencv的Mat类型向Eigen中的Matrix类型转换](https://blog.csdn.net/yangliuqing19/article/details/60874290)
+
+首先包含头文件（顺序不能错！！！先包含eigen相关库，再包含opencv库！）
+
+\#include <Eigen/Core>
+
+\#include <opencv2/core/eigen.hpp>
+
+###   cv::FileStorage不能读unsigned int, 应该写int
+
+
+
+
+
+
+

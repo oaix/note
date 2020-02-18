@@ -2,6 +2,8 @@
 
 1. 旋转矩阵
 ```cpp
+#include <pcl/common/eigen.h>
+
 Eigen::Affine3f tt;
     for (std::size_t i = 0; i < 4; ++i)
     {

@@ -131,6 +131,12 @@ inline float sqrPointToPlaneDistance(const pcl::PointXYZI &in_point, const Eigen
   float numerator = plane_model.dot(tmp_v4f);
   return numerator * numerator / plane_model.head(3).squaredNorm();
 }
+#include <pcl/sample_consensus/sac_model_plane.h>
+template <typename Point> inline double
+  pointToPlaneDistanceSigned (const Point &p, const Eigen::Vector4f &plane_coefficients)
+  {
+    return ( plane_coefficients[0] * p.x + plane_coefficients[1] * p.y + plane_coefficients[2] * p.z + plane_coefficients[3] );
+  }
 ```
 ### 快速复制点云
 `memcpy(&out_cloud_ptr->points[0], &in_cloud_ptr->points[0], point_num * sizeof(pcl::PointXYZI));`
