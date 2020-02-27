@@ -317,3 +317,76 @@ cv::remap(input_image, marker_image_, map1_, map2_, CV_INTER_LINEAR);
 
 ```
 
+
+
+###  [cv::Mat与std::vector, 数组之间的转换](https://blog.csdn.net/guyuealian/article/details/80253066)
+
++ Mat and vector
+
+  vector转Mat时，使用reshape()后，必须clone()一份，否则返回的结果出错.
+
+  ```cpp
+  /***************** Mat转vector **********************/
+  template<typename T>
+  std::vector<T> convertMat2Vector(const cv::Mat &mat)
+  {
+  	return (std::vector<T>)(mat.reshape(1, 1));//通道数不变，按行转为一行
+  }
+   
+  /****************** vector转Mat *********************/
+  template<typename T>
+  cv::Mat convertVector2Mat(std::vector<T>& v, int channels, int rows)
+  {
+  	cv::Mat mat = cv::Mat(v);//将vector变成单列的mat
+  	cv::Mat dest = mat.reshape(channels, rows).clone();//PS：必须clone()一份，否则返回出错
+  	return dest;
+  }
+  
+  Mat img = ...; // img must be CV_8UC1 in this example
+  vector<uchar> v(img.begin<uchar>(), img.end<uchar>());
+  Mat img2(img.rows, img.cols, img.type(), v.data());
+  Mat img3 = Mat(img.rows, img.cols, img.type(), v.data()).clone();
+  ```
+
+  
+
++ Mat与数组互转
+
+  ```cpp
+  unsigned char cbuf[height][width];
+  cv::Mat img(height, width, CV_8UC1, (unsigned char*)cbuf);
+  
+  std::vector<uchar> array(mat.rows*mat.cols);
+  if (mat.isContinuous())
+      array = mat.data;
+  
+  unsigned char *array=new unsigned char[mat.rows*mat.cols];
+  if (mat.isContinuous())
+      array = mat.data;
+  ```
+
+  对于二维vector的传值，我们可以这样处理:
+
+  ```cpp
+  uchar **array = new uchar*[mat.rows];
+  for (int i=0; i<mat.rows; ++i)
+      array[i] = new uchar[mat.cols];
+   
+  for (int i=0; i<mat.rows; ++i)
+      array[i] = mat.ptr<uchar>(i);
+  
+  BYTE* iPtr = new BYTE [height*width*3];
+  	for(int i=0;i<height;i++)
+  	{
+  		for(int j=0;j<width;j++)
+  		{
+  			for(int k=0;k<3;k++)
+  			{
+  				iPtr[i*width*3+j*3+k] = img.at<Vec3b>(i,j)[k];
+  			}
+  		}
+  	}
+  ```
+
+  
+
