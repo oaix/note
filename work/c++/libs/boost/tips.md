@@ -1,3 +1,4 @@
+[TOC]
 
 # Tips
 
@@ -203,3 +204,4 @@ std::cout << "differ image cost time: " << (t2 - t1).total_milliseconds() << " m
           return data.find(to_search, pos);
         });
   ```
+

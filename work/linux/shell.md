@@ -5,16 +5,18 @@
 # Shell Command
 
 ### [`Shell特殊变量：Shell $0, $#, $*, $@, $?, $和命令行参数`](https://blog.csdn.net/u011341352/article/details/53215180)
+
 变量     含义  
 `$0 `     当前脚本的文件名  
 `$n`      传递给脚本或函数的参数。n 是一个数字，表示第几个参数。例如，第一个参数是`$1`，第二个参数是`$2`。  
 `$#`      传递给脚本或函数的参数个数。  
 `$*`      传递给脚本或函数的所有参数。  
-`$@ `     传递给脚本或函数的所有参数。被双引号(" ")包含时，与 $* 稍有不同，下面将会讲到。  
-`$?`      上个命令的退出状态，或函数的返回值。一般情况下，大部分命令执行成功会返回 0，失败返回 1。  
+`$@ `     传递给脚本或函数的所有参数。被双引号(" ")包含时，与 \$* 稍有不同，下面将会讲到。  
+`\$?`      上个命令的退出状态，或函数的返回值。一般情况下，大部分命令执行成功会返回 0，失败返回 1。  
 `$$`      当前Shell进程ID。对于 Shell 脚本，就是这些脚本所在的进程ID。
 
 ### 软连接ln -s src_obj dst_obj
+
 删除rm dst_obj
 
 此处的src_obj的路径可以是绝对路径，如果是相对路径，是相对于dst_obj的地址
@@ -155,9 +157,40 @@ dmesg | grep Linux
 
 + mv    
   mv fromfile tofile
+
 + raname    
   rename [ -v ][ -n ] [ -f ] perlexpr [ files ]
+
 + 正则表达式
+
++ https://blog.51cto.com/racoguo/1288016
+
+  ```sh
+   -a ：文件存在
+  
+     -b ：文件存在并且是一块特殊文件
+  
+     -c ：文件存在并且是一个字符特殊文件.
+  
+     -d ：文件存在并且是一个目录
+  
+     -e ：文件存在（如 -a 一样）
+  
+     -f ：文件存在并且是一个普通文件
+  
+     -L ：文件存在并且是符号链接.
+  
+     -n ：字符串长度不为零.
+  
+     -s ：文件已存在，并且大小大于零.
+  
+     -w ：文件存在并且是由当前进程可写.
+  
+     -x ：文件存在并且是可执行的过程.
+  
+     -z ：字符串的长度是零
+  ```
+
 
 
 
@@ -350,7 +383,8 @@ if ($i<5)
 if [ $i -lt 5 ]
 if [ $a -ne 1 -a $a != 2 ]
 if [ $a -ne 1] && [ $a != 2 ]
-if [[ $a != 1 && $a != 2 ]]
+if [[ $a != 1 && $a != 2 ]]23
+
  
 for i in $(seq 0 4);do echo $i;done
 for i in `seq 0 4`;do echo $i;done
@@ -397,10 +431,20 @@ for i in {0..4};do echo $i;done
 
 ### [将所有文件夹权限改为755,文件权限改为644](https://stackoverflow.com/questions/3740152/how-do-i-change-permissions-for-a-folder-and-all-of-its-subfolders-and-files-in/11512211#11512211)
 (1)To change all the directories to 755 (drwxr-xr-x):
-find /home/robosense/test -type d -exec chmod 755 {} \;
+
 `chmod 755 {} \;`对find每一个文件夹执行`chmod 755`；其中`{}`替代找到的路径，分号`\;`表示命令结束，否则语句会因为到了shell语句末尾而结束，而不是执行完所有的find.
+
+```sh
+find /home/robosense/test -type d -exec chmod 755 {} \;
+```
+
 (2)To change all the files to 644 (-rw-r--r--):
+
+```sh
 find /home/robosense/test -type f -exec chmod 644 {} \;
+```
+
+
 
 
 
@@ -479,7 +523,7 @@ echo $!    # 后台运行的最后一个进程的 ID 号
 首先，单引号和双引号，都是为了解决中间有空格的问题。因为空格在linux中时作为一个很典型的分隔符，比如string1=this is astring，这样执行就会报错。为了避免这个问题，因此就产生了单引号和双引号。他们的区别在于，单引号将剥夺其中的所有字符的特殊含义，而双引号中的'$'（参数替换）和'`'（命令替换）是例外。所以，两者基本上没有什么区别，除非在内容中遇到了参数替换符$和命令替换符`。
 
 由单引号括起来的字符都作为普通字符出现。特殊字符用单引号括起来以后，也会失去原有意义，而只作为普通字符解释。
-由双引号括起来的字符，除$（美元符号）、\（反斜杠）、’（单引号）、和”（双引号）这几个字符仍是特殊字符并保留其特殊功能外，其余字符仍作为普通字符对待。对于“$”来说，就是用其后指定的变量的值来代替这个变量和$；对于“\”而言，是转义字符，它告诉shell不要对其后面的那个字符进行特殊处理，只当作普通字符即可。可以想见，在双引号中需要在前面加上“\”的只有四个字符$，\，’和”本身。而对”号，若其前面没有加“\”，则Shell会将它同前一个”号匹配。如例程中的"-$i day"，会随着循环，将$i转换成其代表的值。 
+由双引号括起来的字符，除来说，就是用其后指定的变量的值来代替这个变量和$；对于“\”而言，是转义字符，它告诉shell不要对其后面的那个字符进行特殊处理，只当作普通字符即可。可以想见，在双引号中需要在前面加上“\”的只有四个字符$，\，’和”本身。而对”号，若其前面没有加“\”，则Shell会将它同前一个”号匹配。如例程中的"-$i day"，会随着循环，将$i转换成其代表的值。 
 单引号将剥夺其中的所有字符的特殊含义，而双引号中的'$'（参数替换）和'`'（命令替换）是例外。所以，两者基本上没有什么区别，除非在内容中遇到了参数替换符$和命令替换符`。
 (2)反引号
 
@@ -671,7 +715,7 @@ second:
 
   - 永久环境变量：需要修改配置文件，变量永久生效
   - 临时环境变量：使用export命令行声明即可，变量在shell脚本进程结束后仍然有效，但在关闭当前shell会话后失效
-  - 全局变量：在脚本中定义，仅在当前Shell脚本中有效，其他Shell脚本进程不能访本，其作用域从定义的位置开始，到脚本结束或被显示删除的地方为止。注意，全局变量既可以在Shell函数内定义，也可以在shell函数外定义，因为shell函数内定义的变量默认为global，且作用域从“函数被调用时执行变量定义的地方”开始，到脚本结束或被显示删除的地方为止。
+  - 全局变量：在脚本中定义，仅在当前Shell脚本中有效，其他Shell脚本进程不能访本，其作用域从定义的位置开始，到脚本结束或被显示删除的地方为止。注意，全局变量既可以在Shell函数内定义，也可以在shell函数外定义，因为shell函数内定义的变量默认为global，且作用域从“函数被调用时执行变量定义的地方”开始，到脚本结束或被显示删除的地方为止
   - 局部变量。在shell脚本中函数内显示使用local关键字定义的变量。其作用域局限于函数内。同名local变量会屏蔽global变量。
 
   使用export命令我们申明的是临时环境变量，在当前shell会话中，所有的shell实例都可以访问由export命令申明的临时环境变量。因为当前shell会话中的所有shell实例，都是当前shell会话的子进程，所以可以与父进程一同访问环境变量。
@@ -687,4 +731,87 @@ second:
 
 
 
+### [usb rules](<https://www.corvin.cn/474.html>)
+
+<https://wiki.archlinux.org/title/Udev_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)>
+
+<https://blog.csdn.net/tianyingang/article/details/103281275>
+
+First, run lsusb, then plug in your USB peripheral and run lsusb again. Compare the two listings: the second listing should have at least one extra line that describes your peripheral.
+
+Once you've identified the correct line, make a note of the ID xxxx:yyyy numbers on that line. These are the vendor ID and product ID for the device.
+
+But first, some principles about udev rule files:
+
+You can add any udev rule files you want to /etc/udev/rules.d: the only name requirement is that the filename should have a .rules suffix.
+
+The files in /lib/udev/rules.d are reserved for the pre-packaged rules of your Linux distribution: any changes you make to any existing files in there will be overwritten when a new patch affecting the udev rules is installed to the system.
+
+If you need to modify the existing rules, you should instead copy the rule file you wish to modify from /lib/udev/rules.d to /etc/udev/rules.d, keeping the original name of the file. Any files in /etc/udev/rules.d will override files with identical names in /lib/udev/rules.d. Once you've made the copy, you can modify the copy in /etc/udev/rules.d as you wish, secure in the knowledge that your changes won't be overwritten at some future point when some security updates are installed.
+
+The rule files in both directories are read (after taking into account the overrides) in a simple alphanumeric order, and if there are conflicting rules, then the last one wins. There is a convention that the rule file name should be something like NN-descriptive-name.rules, where NN identifies the place of this file in the overall ordering of the rules.
+
+Then to the actual task of writing the rule.
+
+If the ID for your device in the lsusb listing was xxxx:yyyy, then the part of the udev rule that specifies the device would be:
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="xxxx", ATTRS{idProduct}=="yyyy"
+Note the doubled equals signs. The convention is similar to C, Java and certain other programming languages: a doubled equals sign means testing for equality, a single equals sign means setting something to a particular value.
+
+In most modern versions of Linux, you can use TAG+="uaccess" at the end of your rule line to specify that a particular device should be accessible by whoever is currently logged in to the system locally.
+
+If you need only some users to be able to access the device, create a group (sudo groupadd mydevice), add the users to the group (usermod -a -G mydevice username) and make the device accessible by that group only with GROUP="mydevice", MODE="0660" at the end of your rule line. Then people added to the group can e.g. use ssh to connect to the system remotely and still use the device; people that are not members of the group won't able to use the device at all.
+
+Note: new group memberships will take effect at your next login, so if you add yourself to the new group, you'll need to logout and log back in before testing the device.
+
+If you want to allow everyone on the system to access the device, you can just specify MODE="0666" at the end of your rule line. (You should think twice before doing this.)
+
+Putting it all together
+
+So, if you don't have a particular need to modify any existing rule file, you can just create your own, e.g. /etc/udev/rules.d/99-mydevice.rules.
+
+sudo <your-favorite-text-editor> /etc/udev/rules.d/99-mydevice.rules
+If you want to just allow the locally logged-in user to use the device, the contents of the file should be like this:
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="xxxx", ATTRS{idProduct}=="yyyy", TAG+="uaccess"
+After you've saved the rule file, run this command to make your new rule take effect immediately:
+
+udevadm control --reload-rules
+If you instead used the group-based solution, logout and log back in at this point.
+
+
+
+
+
+### [tee接收password](<https://unix.stackexchange.com/questions/391796/pipe-password-to-sudo-and-other-data-to-sudoed-command>)
+
+```sh
+{ echo 'mypassword'; echo 'some text'; } | sudo -k -S tee -a /etc/test.txt &>/dev/null
+```
+
+
+
+### [识别并插入一行到文件中](https://www.baeldung.com/linux/read-specific-line-from-file)
+
+https://www.baeldung.com/linux/insert-line-specific-line-number
+
+https://www.runoob.com/linux/linux-comm-awk.html
+
+```sh
+line_num=$(awk '/{/{print NR}' ${rsyslog_config_file})
+add_line_num=0
+max_size="maxsize 100M"
+for num in ${line_num}; do
+        echo $num
+        num=$((num + add_line_num + 1))
+        echo $num
+        max_size_str=$(awk -vnum=$num 'FNR==num{print; exit}' ${rsyslog_config_file} | awk '{print $1}') # -v定义变量
+        echo $max_size_str
+        if [[ $max_size_str != "maxsize" ]]; then
+                #awk -vnum=$num 'FNR==num{print "        maxsize 100M"}1' ${rsyslog_config_file} # awk不能保存到原文件中
+                sed -i ''"$num"' i '"$max_size"'' ${rsyslog_config_file} # 变量使用单引号+双引号
+                add_line_num=$((add_line_num + 1))
+        fi
+done
+```
 

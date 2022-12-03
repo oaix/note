@@ -250,7 +250,25 @@ sudo sysctl -p
 ip link show ${ethernet}
 ```
 
+#### [关闭系统防火墙](https://www.jianshu.com/p/717e6cd9d2bb)
 
+<https://www.jianshu.com/p/717e6cd9d2bb>
+
+```shell
+# 编辑/etc/sysctl.d/10-network-security.conf文件，将rp_filter赋为0，如下：
+# Turn on Source Address Verification in all interfaces to
+# prevent some spoofing attacks.
+net.ipv4.conf.default.rp_filter=0
+net.ipv4.conf.all.rp_filter=0
+
+# shell
+if sudo grep -xn "net.ipv4.conf.default.rp_filter=0" /etc/sysctl.conf && sudo grep -xn "net.ipv4.conf.all.rp_filter=0" /etc/sysctl.conf; then
+  echo "rp_filter has been set."
+else
+  sudo sh -c "echo 'net.ipv4.conf.default.rp_filter=0' >> /etc/sysctl.conf"
+  sudo sh -c "echo 'net.ipv4.conf.all.rp_filter=0' >> /etc/sysctl.conf"
+fi
+```
 
 #### 设置MTU
 
@@ -310,4 +328,18 @@ They are two different processing technologies. One is hardware, and the other i
 
 + H265 (HEVC, High Efficiency Video Coding)
 + H264 (AVC)
+
+### [c口，cs口镜头](<https://zhuanlan.zhihu.com/p/67308427>)
+
+![1603078178917](img/1603078178917.png)
+
+![preview](img/v2-e19ebe29cca2092c3d90ccf7262ec487_r.jpg)　
+
+C-mount： 图像传感器到镜头之间的距离应为17.5 mm
+
+CS-mount： 图像传感器到镜头之间的距离应为12.5 mm
+
+一个5 mm的垫圈(C/CS 连接环) 可用于将C-mount 镜头转换为CS-mount 镜头
+
+ C接口和CS接口是工业相机与镜头联接最常见的国际标准接口，为1英寸－32UN英制螺纹连接口，C型接口和CS型接口的螺纹连接是一样的，区别在于C型接口的后截距为17.5mm，CS型接口的后截距为12.5mm。所以CS型接口的工业相机可以和C口及CS口的镜头连接使用，只是使用C口镜头时需要加一个5mm的接圈；C型接口的工业相机不能用CS口的镜头。
 

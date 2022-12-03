@@ -222,9 +222,11 @@ cp pre-commit your_git_project/.git/hooks/
   命令git push origin <tagname>可以推送一个本地标签；
   命令git push origin --tags可以推送全部未推送过的本地标签；
   命令git tag -d <tagname>可以删除一个本地标签；
-  命令git push origin :refs/tags/<tagname>可以删除一个远程标签。
+  命令git push origin :refs/tags/<tagname>可以[删除一个远程标签](https://devconnected.com/how-to-delete-local-and-remote-tags-on-git/)。git push --delete origin tagname
 
-  ### [git patch](https://juejin.im/post/5b5851976fb9a04f844ad0f4)
+
+
+### [git patch](https://juejin.im/post/5b5851976fb9a04f844ad0f4)
 
 
 
@@ -245,8 +247,8 @@ cp pre-commit your_git_project/.git/hooks/
 
 branch1开发，进行多个提交，这是切换到branch2，想把之前branch1分支提交的commit都【复制】过来:
   单个commit只需要git cherry-pick commitid
-  多个commit 只需要git cherry-pick commitid1..commitid100 #中间２个点
-  **注意**，不包含第一个commitid ， 即  git cherry-pick (commitid1..commitid100]
+  多个commit 只需要git cherry-pick -n commitid1..commitid100 #中间２个点
+  **注意**，不包含最后一个commitid ， 即  git cherry-pick [commitid1..commitid100)
   git cherry-pick <start-commit-id>..<end-commit-id>
   其中，<start-commit-id>到<end-commit-id>只需要commit-id的前6位即可，并且<start-commit-id>在时间上必须早于<end-commit-id>
  commitid1在时间上最早，即在提交的时间轴上依次为commitid1, commitid2 ... commitid100
@@ -286,12 +288,14 @@ git rebase -i --autosquash automatically organize merging of these fixup commits
 
 ### [丢弃git本地所有更改](https://blog.csdn.net/ustccw/article/details/79068547)
 
+<https://stackoverflow.com/questions/22620393/various-ways-to-remove-local-git-changes>
+
 对于相应情况使用如下指令：
 
 ```sh
 git reset HEAD . # git reset HEAD filename 本地修改/新增了一堆文件，已经git add到暂存区
 git checkout . # git checkout -- filename 本地修改了一堆文件(并没有使用git add到暂存区)
-git clean -xdf # rm filename / rm dir -rf rm filename / rm dir -rf
+git clean -xdf # rm filename / rm dir -rf rm filename / rm dir -rf 没有跟踪的文件
 ```
 
 也可先保存更改到stash
@@ -339,11 +343,22 @@ git clean 参数
   git remote remove origin
   ```
 
++ 远程分支和tag同名
+
+  ```sh
+  # delete remote branch
+  git push origin :refs/heads/Branchname # git push origin :refs/heads/v2.6.6
+  # delete remote tag
+  git push origin :refs/tags/Tagname
+  ```
+  
+  
+  
 + Deleting a local remote-tracking branch
 
   ```sh
   git branch --delete --remotes <remote>/<branch>
-  git branch -dr <remote>/<branch> # Shorter
+  git branch -dr <remote>/<branch> # Shorter, git branch -dr origin/feedback
   
   git fetch <remote> --prune # Delete multiple obsolete tracking branches
   git fetch <remote> -p      # Shorter
@@ -457,6 +472,36 @@ git clean 参数
 You may have noticed that in some commands, you use `<remote>/<branch>`, and other commands, `<remote> <branch>`.Examples : `git branch origin/hello-kitty` and`git push --delete origin hello-kitty`
 
 It may seem arbitrary, but there is a simple way to remember when to use a slash and when to use a space.when you're using a slash, you're referring to a remote-tracking branch on your own machine, whereas when you're using a space, you're actually dealing with a branch on a remote machine over the network.
+
+### [remove submodule](<https://stackoverflow.com/questions/1260748/how-do-i-remove-a-submodule>)
+
+1. Delete the relevant section from the `.gitmodules` file.
+2. Stage the `.gitmodules` changes:
+   `git add .gitmodules`
+3. Delete the relevant section from `.git/config`.
+4. Remove the submodule files from the working tree and index:
+   `git rm --cached path_to_submodule` (no trailing slash).
+5. Remove the submodule's `.git` directory:
+   `rm -rf .git/modules/path_to_submodule`
+6. Commit the changes:
+   `git commit -m "Removed submodule <name>"`
+7. Delete the now untracked submodule files:
+   `rm -rf path_to_submodule`
+
+简单方法：
+
+```sh
+# Remove the submodule entry from .git/config
+git submodule deinit -f path/to/submodule
+
+# Remove the submodule directory from the superproject's .git/modules directory
+rm -rf .git/modules/path/to/submodule
+
+# Remove the entry in .gitmodules and remove the submodule directory located at path/to/submodule
+git rm -f path/to/submodule
+```
+
+
 
 
 
@@ -684,9 +729,102 @@ find . -depth 1 -type d -print -exec git -C {} pull \;
 
 Note: if the `-depth 1` option is not available, try `-mindepth 1 -maxdepth 1`.
 
+### [删除远程同名branch, tag](https://stackoverflow.com/questions/32927154/delete-a-remote-branch-with-the-same-name-as-tag)
+
+```sh
+git push origin :tags/v3.0.0 # rm tag
+git push origin :heads/v3.0.0 # rm branch
+```
 
 
-## tools
+
+### [给仓库瘦身](https://www.atlassian.com/git/tutorials/big-repositories)
+
+```sh
+# 列出前5个大文件
+git rev-list --objects --all | grep "$(git verify-pack -v .git/objects/pack/*.idx | sort -k 3 -n | tail -5 | awk '{print$1}')" >> large-files.txt
+# 提取大文件的路径
+cat large-files.txt| awk '{print $2}' | tr '\n' ' ' >> large-files-inline.txt
+# 从git历史中删除大文件
+git filter-branch -f --prune-empty --index-filter "git rm -rf --cached --ignore-unmatch `cat large-files-inline.txt`" --tag-name-filter cat -- --all
+rm large-files.txt
+rm large-files-inline.txt
+# 本地默认会保留这些大文件ref和git记录缓存，可以切断他们的联系
+git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin && git reflog expire --expire=now --all
+# 然后再进行垃圾回收，本地就很小了
+git gc --prune=now
+# 推送到远端服务器，重新clone下来就很小了（这个似乎要推到新的远程分支，否则服务器上面的也还是很大）
+git push origin --force --all
+git push origin --force --tags
+```
+
+
+
+### [git reset revert rebase](https://geekflare.com/git-reset-vs-revert-vs-rebase/)
+
++ git reset --soft/mixed/hard
+
+  Hard mode is used to go to the pointed commit, the working directory gets populated with files of that commit, and the staging area gets reset. In soft reset, only the pointer is changed to the specified commit. The files of all the commits remain in the working directory and staging area before the reset. In mixed mode (default), the pointer and the staging area both get reset.
+
+  | 是否重置          | soft | mixed | hard |
+  | ----------------- | ---- | ----- | ---- |
+  | working directory | ×    | ×     | √    |
+  | staging index     | ×    | √     | √    |
+  | HEAD              | √    | √     | √    |
+
++ git revert
+
+  t is similar to the reset command, but the only difference here is that you perform a new commit to go back to a particular commit. In short, it is fair to say that the git revert command is a commit.多个连续commit撤销时，处理方式和`cherry-pick`类似：
+
+  ```sh
+  git revert -n first_commit_id..last_commit_id # [first_commit_id, last_commit_id)
+  ```
+
+  
+
++ git rebase
+
+  当我们在一个过时的分支上面开发的时候，执行 `rebase` 以此同步 `master` 分支最新变动；
+
+  1. [合并多个commits](http://jartto.wang/2018/12/11/git-rebase/)
+
+     对于未提交到远程的多个提交，可以在本地完成合并后再推到远程
+
+     ```sh
+     git rebase -i 
+     git rebase --edit-todo # 重新vim打开交互文件
+     ```
+
+     
+
+  2. 合并分支
+
+     git rebase的黄金法则就是永远不要在公共分支上用这个指令。不要对在你的仓库外有副本的分支执行变基。除非你可以肯定该 `feature` 分支只有你自己使用，否则请谨慎操作。
+
+     结论：只要你的分支上需要 `rebase` 的所有 `commits` 历史还没有被 `push` 过，就可以安全地使用 `git-rebase`来操作。
+
+     ![image-20221203165111787](img/image-20221203165111787.png)
+
+     向某个其他人维护的项目贡献代码时。 在这种情况下,你首先在自己的分支里进行开发,当开发完成时你需要先将你的代码变基到origin/master 上,然后再向主项目提交修改。
+
+      变基是将一系列提交按照原有次序依次应用到另一分支上,而合并是把最终结果合在一起。
+
+     ```sh
+     git checkout feature
+     git rebase master
+     git checkout master
+     git merge feature # fast-forward
+     ```
+
+     + git找到`master, feature`的共同祖先
+     + 将`feature`祖先之后的commit，取消掉
+     + 将取消掉的commit临时保存成`patch`文件，存在`.git/rebase`目录下
+     + 把`feature`分支更新到最新的`master`分支
+     + 把上面保存的`patch`文件中的各个commit应用到`feature`分支上，内容相同，但是commit信息不同。
+
+  ![image-20221202172335106](img/image-20221202172335106.png)
+
+## stools
 
 ### [ungit]()
 

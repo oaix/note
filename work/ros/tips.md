@@ -38,7 +38,12 @@ http://wiki.ros.org/nodelet
   http://www.clearpathrobotics.com/assets/guides/ros/Nodelet%20Everything.html
   https://blog.csdn.net/yiranhaiziqi/article/details/53308657
 
+<http://www.clearpathrobotics.com/assets/guides/kinetic/ros/Nodelet%20Everything.html>
+
+
+
 ## [metapackage](http://wiki.ros.org/catkin/package.xml#Metapackages)
+
 A good use for metapackages is to group the major components of your robot and then provide a comprehensive grouping for your whole system.
   group multiple packages as a single logical package, Catkin packages must depend directly on the packages they use, not on any metapackages. but metapackages can depend on other metapackages. metapackage可以依赖其他metapackage, 普通package不能依赖于matepackage.
 
@@ -98,6 +103,7 @@ Metapackages list all packages or other metapackages in their group using <run_d
     ```sh
     image_transport::ImageTransport it(nh);
     image_transport::Publisher img_intenstiy_pub = it.advertise("img_intensity", 10);
+    img_intenstiy_pub.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg())
     ```
 
 

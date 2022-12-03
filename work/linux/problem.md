@@ -81,6 +81,13 @@ gsettings set com.canonical.Unity.Launcher launcher-position Bottom
 ​          RX packets:2041 errors:0 dropped:0 overruns:0 frame:0
 ​          TX packets:1025 errors:0 dropp表检测的优先级，比如1的优先级比2高。根目录所在的分区的优先级为1，其他分区的优先级为大于或等于2
 
++ [挂载远程共享盘](https://my.oschina.net/u/4376994/blog/4191549)
+
+  ```sh
+  sudo mount -t cifs -o username="xshen@robosense.cn",passwd="Andysen211" //192.168.1.27/calibration /home/robosense/share
+  ```
+
+
 ## 设置mtu
 [sudo ethtool -s em1 autoneg off speed 100 duplex full](https://www.garron.me/en/linux/ubuntu-network-speed-duplex-lan.html)
 The MTU is specified in terms of bytes or octets of the largest protocol data unit that the layer can pass onwards. ... For example, with Ethernet, the maximum frame size is 1518 bytes, 18 bytes of which are overhead (header and FCS), resulting in an MTU of 1500 bytes.
@@ -114,6 +121,70 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
   option broadcast-address 192.168.0.255;
   option interface-mtu 9000;
 }
+```
+
+(4)[修改系统文件/etc/network/interfaces](<http://www.361way.com/linux-mtu-jumbo-frames/4055.html>)
+
+```sh
+# vi /etc/network/interfaces
+#增加如下值
+mtu 9000
+#保存后，重启网络生效
+# /etc/init.d/networking restart
+```
+
+
+
+## [网络参数](<https://www.huaweicloud.com/articles/b70d6b86bd26a487a9fb87f930949e26.html>)
+
+<https://blog.51cto.com/nosmoking/1684114>
+
+<https://segmentfault.com/a/1190000000473365>
+
+设置网路参数
+
+```sh
+# two parameters: parameter name, parameter value
+function setNetworkParameter() 
+{
+  if [ $# -ne 2 ]; then
+    return 1
+  fi
+  if grep -o $1 /etc/sysctl.conf >/dev/null; then
+    old_value=$(grep $1 /etc/sysctl.conf | awk '{ print $3 }')
+    echo $old_value
+
+    #if [ $old_value -lt $2 ]
+    if [ $old_value -ne $2 ]; then
+      sudo sed -i -e "/$1 = /s/$old_value/$2/" /etc/sysctl.conf
+      echo "set $1 to $2 instead of $old_value"
+    fi
+  else
+    sudo sh -c "echo '$1 = $2' >> /etc/sysctl.conf"
+    echo "set $1 to $2"
+  fi
+  return 0
+}
+
+# set network buffer to 180M(188743680)
+declare -a network_param_name=(net.core.rmem_default net.core.wmem_default net.core.rmem_max net.core.wmem_max net.ipv4.tcp_keepalive_time net.ipv4.tcp_keepalive_intvl net.ipv4.tcp_keepalive_probes)
+declare -a network_param_value=(94371840 94371840 188743680 188743680 30 10 3)
+for ((i = 0; i < ${#network_param_name[@]}; i++)); do
+  setNetworkParameter ${network_param_name[i]} ${network_param_value[i]}
+done
+# mtu
+if grep -o "mtu" /etc/network/interfaces >/dev/null; then
+    old_value=$(grep "mtu" /etc/network/interfaces | awk '{ print $2 }')
+    echo $old_value
+
+    if [ $old_value -lt 9000 ]; then
+      sudo sed -i -e "/mtu /s/$old_value/9000/" /etc/network/interfaces
+      echo "set mtu to 9000 instead of $old_value"
+    fi
+  else
+    sudo sh -c "echo 'mtu 9000' >> /etc/network/interfaces"
+    echo "set mtu to 9000"
+  fi
 ```
 
 
@@ -238,3 +309,56 @@ chmod u-w /etc/sudoers
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 ```
 
+
+
+## pcap [tcpdump permissions problem](https://askubuntu.com/questions/530920/tcpdump-permissions-problem)
+
+```sh
+sudo groupadd pcap
+sudo usermod -a -G pcap $USER
+sudo chgrp pcap /usr/sbin/tcpdump
+sudo chmod 750 /usr/sbin/tcpdump
+
+sudo setcap cap_net_raw,cap_net_admin=eip xxxx #xxxx为可执行程序
+```
+
+https://unix.stackexchange.com/questions/189750/how-can-i-run-script-without-root-to-sniff-network-libpcap
+
+
+
+## [延迟截屏 ](<https://www.kutu66.com/ubuntu/article_160532>)
+
+```sh
+gnome-screenshot -w --delay=5
+```
+
+
+
+## [用户获取ttyusb0权限](<https://askubuntu.com/questions/133235/how-do-i-allow-non-root-access-to-ttyusb0>)
+
+The device is most likely attached to user group `dialout`. Just add your user to the dialout group so you have appropriate permissions on the device.
+
+```sh
+sudo usermod -a -G dialout $USER
+```
+
+You may need to logout and back in for the new group to take effect.
+
+### [USB udev-rules](<https://linuxconfig.org/tutorial-on-how-to-write-basic-udev-rules-in-linux>)
+
+<http://www.clearpathrobotics.com/assets/guides/kinetic/ros/Udev%20Rules.html>
+
+```sh
+rule_file="/home/robosense/Project/calibration_ws/lidar_camera/mems/install_shell/80-hahahha.rules"
+
+echo "KERNEL==\"ttyUSB[0-9]*\", SUBSYSTEMS==\"usb\", ATTRS{idVendor}==\"0403\", ATTRS{idProduct}==\"6001\", MODE:=\"0666\", SYMLINK+="redlayUSB"" | sudo tee -a ${rule_file}
+
+```
+
+
+
+## [linux, window下乱码问题](<https://blog.csdn.net/edward_zcl/article/details/80180979>)
+
+最简单的方法是使用vim打开。
+
+`:set fileencoding=utf-8`

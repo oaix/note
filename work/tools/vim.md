@@ -137,7 +137,7 @@ rm -rf fonts
 ### Install clangd
 
 ```sh
-sudo apt-get install clang-tools-6.0
+sudo apt-get install clang-tools
 ```
 
 
@@ -254,8 +254,8 @@ bundle分为三类，比较常用就是第二种：
   ```
 + 安装依赖
   ```sh
-  sudo apt-get install clang-6.0
-  sudo apt-get install llvm-6.0
+  sudo apt-get install clang
+  sudo apt-get install llvm
   ```
 + 编译
   ```sh
@@ -467,4 +467,12 @@ autocmd BufEnter * silent! lcd %:p:h
 ```sh
 clang-format -style=file -i `find . -type f -regex ".*\.\(cpp\|h\)"`
 ```
+
+
+
+| yuanshi |      |      |
+| :-----: | :--: | ---- |
+|         |      |      |
+|         |      |      |
+|         |      |      |
 

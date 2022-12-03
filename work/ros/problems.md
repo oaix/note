@@ -69,7 +69,10 @@ pcl_ros/point_cloud.h
 To filter based on time, convert the time to a floating point number (use UNIX time, to get this value, use rosbag info):
 `rosbag filter input.bag output.bag "t.secs <= 1284703931.86"`
 
+`rosbag filter industry_5_cameras.bag five_cameras.bag "(topic == '/camera_front/image_color/compressed' or topic == '/camera_left1/image_color/compressed' or topic == '/camera_left2/image_color/compressed' or topic == '/camera_right1/image_color/compressed' or topic == '/camera_right2/image_color/compressed') and t.secs >= 1535192233 and t.secs <= 1535192243"`
+
 ### launch file "if , unless"
+
 ```xml
 <launch>
   <arg name="using_namespace_flag" default="1" doc="Flag for p3 or single 32 beams lidar must be 0 or 1." />
@@ -627,3 +630,21 @@ sudo apt-get autoremove
     https://zhuanlan.zhihu.com/p/86780027
 
     https://www.jianshu.com/p/02ee8f513295
+
+### [rosbag record buffer exceeded](https://blog.csdn.net/qq_34570910/article/details/88990373)
+
++ 提高rosbag的缓存空间
+
+  ```sh
+  rosbag record -o /home/inin/data/ -b 4096 /occam/stitched_image0 /occam/image_tiles0
+  ```
+
+  rosbag 中加入-b num ,即为将缓存空间设置成num大小，默认为256M，如果设置为0则没有限制
+
++ 保存  compressed类型数据
+
+  存储图像的压缩格式/compressed,可有效减小数据写入大小(1min=1G)，然而压缩后的图像是一种有损压缩对图像质量要求极高的情况慎用，当然一般做视觉计算是无所谓的，相当于把raw格式的图片转换为jpeg格式。
+
+  ```sh
+  rosrun image_view image_view image:=/occam/image_tiles0 compressed
+  ```

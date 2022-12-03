@@ -82,6 +82,15 @@ Mat_<int>-----------CV_32S
 Mat_<float>----------CV_32F
 Mat_<double>--------CV_64F
  
+ #define CV_8U   0
+#define CV_8S   1
+#define CV_16U  2
+#define CV_16S  3
+#define CV_32S  4
+#define CV_32F  5
+#define CV_64F  6
+#define CV_USRTYPE1 7
+
 img1.at<vec3b>(i,j)[0]= 3.2f;  // B 通道
 img1.at<vec3b>(i,j)[1]= 3.2f;  // G 通道
 img1.at<vec3b>(i,j)[2]= 3.2f;  // R 通道
@@ -348,8 +357,6 @@ cv::remap(input_image, marker_image_, map1_, map2_, CV_INTER_LINEAR);
   Mat img3 = Mat(img.rows, img.cols, img.type(), v.data()).clone();
   ```
 
-  
-
 + Mat与数组互转
 
   ```cpp
@@ -388,5 +395,37 @@ cv::remap(input_image, marker_image_, map1_, map2_, CV_INTER_LINEAR);
   	}
   ```
 
-  
+
+
+### [检测棋盘失败](https://stackoverflow.com/questions/56368537/opencv-fails-to-find-chess-board-corners)
+
+The function requires white space (like a square-thick border, the wider the better) around the board to make the detection more robust in various environments. Otherwise, if there is no border and the background is dark, the outer black squares cannot be segmented properly and so the square grouping and ordering algorithm fails. 
+
+该功能需要在木板周围留有空白（如正方形的边框，越宽越好），以使检测在各种环境中都更加可靠。 否则，如果没有边框且背景较暗，则无法正确分割外部黑色正方形，因此正方形分组和排序算法将失败。提高检测成功率的建议：
+
++ 使用更大的格子，或者使用更高分辨率的相机
+
+  There are more pixels per checkerboard square, thus the corner detecting algorithm can find it better.
+
++ 当棋盘铺满整个画面时更应该做畸变矫正
+
+  You correct for distortion better. The camera distortion is stronger in the corners of the image, thus if the checkerboard has points all around the image, it will detect the distortion considerably better then if its just a small thing in the middle of the image.
+
++ 白色边框的宽度至少为一个格子的大小，更大一点最好 
+
++ Only use the `cv2.CALIB_CB_ADAPTIVE_THREASH` flag when calling `findChessboardCorners`. `CALIB_CB_FAST_CHECK` and `CALIB_CB_NORMALIZE_IMAGE` flags seem to make `findChessboardCorners` not find the corners.
+
+
+
+### setTo
+
+```cpp
+opencv的setTo函数是将图像设置为某个值，比如有一个Mat src，想将他的值全部设置成0，则可以src.setTo(0)
+另外，setTo还有更为高级的用法，比如，对于一个已知的src，我们要将其中大于或者小于某个值的像素值设置为指定的值，则可以如下：
+src.setTo(0,src < 10);
+这句话的意思是，当src中的某个像素值小于10的时候，就将该值设置成0.
+还有一点，这是自己猜想的，前面的那个0可以换成另一个图像：
+src.setTo(dst,src < 10);
+这里的意思是，对于src中的像素值，当其值小于10的时候，就将该值用dst中相应位置的值进行替换。
+```
 

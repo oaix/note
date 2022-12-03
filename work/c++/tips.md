@@ -168,6 +168,8 @@ func_ptr(4); //calls the lambda.
 
    extern "C"的主要作用就是为了能够正确实现C++代码调用其他C语言代码。加上extern "C"后，会指示编译器这部分代码按C语言（而不是C++）的方式进行编译。由于C++支持函数重载，因此编译器编译函数的过程中会将函数的参数类型也加到编译后的代码中，而不仅仅是函数名；而C语言并不支持函数重载，因此编译C语言代码的函数时不会带上函数的参数类型，一般只包括函数名。
 
+<https://stackoverflow.com/questions/152555/h-or-hpp-for-your-class-definitions>
+
 ```cpp
    #ifdef __cplusplus             //告诉编译器，这部分代码按C语言的格式进行编译，而不是C++的
    extern "C"{
@@ -387,3 +389,193 @@ https://stackoverflow.com/questions/1143936/pragma-once-vs-include-guards
 
 
 
+### [write log](https://www.codeproject.com/Questions/97485/how-to-write-log-file-in-C)
+
+```c++
+#include <fstream>
+
+void write_text_to_log_file( const std::string &text )
+{
+    std::ofstream log_file(
+        "log_file.txt", std::ios_base::out | std::ios_base::app );
+    log_file << text << std::end;
+}
+```
+
+PS the important bits of logging for when you write your own are:
+
+\- flush after every message - std::endl does that
+
+\- close the file after every message - the fstream destructor does that
+
+
+
+### [stl比较](https://www.jianshu.com/p/497843e403b4)
+
+https://www.codercto.com/a/29816.html
+
+
+
+### [左值右值std::move, std::forward](<https://www.toutiao.com/i6906371639865655816/?timestamp=1608081119&app=news_article&group_id=6906371639865655816&use_new_style=1&req_id=202012160911580101300361603332C29D>)
+
+std::forward<T>(u)有两个参数：T与 u。 a. 当T为左值引用类型时，u将被转换为T类型的左值； b. 否则u将被转换为T类型右值。
+
+std::move返回的是右值。**右值引用既可以是左值也可以是右值，如果有名称则为左值，否则是右值**。作为函数返回值的 && 是右值，直接声明出来的 && 是左值。
+
+### [虚函数多重继承](<https://blog.csdn.net/haoel/article/details/1948051>)
+
+<https://blog.csdn.net/lihao21/article/details/50688337>
+
+### 虚函数表
+
+<https://blog.csdn.net/haoel/article/details/1948051>
+
+<https://cloud.tencent.com/developer/article/1599283>
+
+vtables是class级别的，一个class的所有实例共用一个vtables.
+
+**1. 每一个基类都会有自己的虚函数表，派生类的虚函数表的数量根据继承的基类的数量来定。**
+**2. 派生类的虚函数表的顺序，和继承时的顺序相同。**
+**3. 派生类自己的虚函数放在第一个虚函数表的后面，顺序也是和定义时顺序相同。**
+**4. 对于派生类如果要覆盖父类中的虚函数，那么会在虚函数表中代替其位置。**
+
+### [Pure Virtual Destructor](https://stackoverflow.com/questions/2089083/pure-virtual-function-with-implementation)
+
+https://www.geeksforgeeks.org/pure-virtual-destructor-c/?ref=lbp
+
+当destructor为纯虚时，需要提供函数体，因为Derived对象析构时会调用Base的析构函数。如果Derived没有显示提供析构函数，编译器会自动生成一个默认的析构函数，所以当Base destructor为纯虚函数时，只是将Base声明为抽象类，而不会影响Derived(Derived不是抽象类)：
+
+```cpp
+class Base {
+public:
+    virtual ~Base() = 0; // Pure virtual destructor
+};
+Base::~Base() // Explicit destructor call
+{
+    std::cout << "Pure virtual destructor is called";
+}
+```
+
+**Why a pure virtual function requires a function body?**
+
+The reason is that destructors (unlike other functions) are not actually ‘overridden’, rather they are always called in the reverse order of the class derivation. This means that a derived class destructor will be invoked first, then the base class destructor will be called. If the definition of the pure virtual destructor is not provided, then what function body will be called during object destruction? Therefore the compiler and linker enforce the existence of a function body for pure virtual destructors. 
+
+c++允许`pure virtual function`提供默认实现，如果要调用，必须显示的调用:
+
+```cpp
+class A {
+public:
+    virtual void f() = 0;
+};
+
+void A::f() {
+    cout<<"Test"<<endl;
+}
+class B : public A {
+
+    virtual void f() {
+        // class B doesn't have anything special to do for f()
+        //  so we'll call A's
+
+        // note that A's declaration of f() would have to be public 
+        //  or protected to avoid a compile time problem
+
+        A::f();
+    }
+
+};
+
+```
+
+抽象类无法创建对象；即使提供纯虚函数的默认实现，也不行。
+To be clear, you are misunderstanding what = 0; after a virtual function means.
+
+**= 0 means derived classes shold provide an implementation, not that the base class can not provide an implementation.**
+
+[如果Base类所有的virtual函数都提供了默认实现，并且想让Base类是abstract class，又不想Derived class必须override virtural函数，此时可将destructor声明为带有函数体的pure virtual](https://stackoverflow.com/questions/1219607/why-do-we-need-a-pure-virtual-destructor-in-c)。Note that since the compiler will generate an implicit destructor for derived classes, if the class's author does not do so, any derived classes will **not** be abstract. Therefore having the pure virtual destructor in the base class will not make any difference for the derived classes. It will only make the base class abstract.
+
+### [构造析构函数中调用virtual函数](https://stackoverflow.com/questions/962132/calling-virtual-functions-inside-constructors)
+
+Base constructor中调用virtural函数时，只构造了Base类的vpointer(指向vtable)，此时对虚拟方法的调用将最终调用该方法的基本版本或生成一个纯虚拟方法，以防它在该层次结构的该级别没有实现。
+
+[When we call a virtual function in a constructor, the function is overridden only within a base class or a currently created class. Constructors in the derived classes have not yet been called. Therefore, the virtual functions implemented in them will not be called.](https://habr.com/en/company/pvs-studio/blog/591747/)
+
+```cpp
+#include <stdio.h>
+
+class A
+{
+public:
+    A() {
+        intermediate_call();
+    }
+
+    void intermediate_call() {
+        // Bad: virtual function call during object construction
+        virtual_function();
+    }
+
+    virtual void virtual_function() {
+        printf("A::virtual_function called\n");
+    }
+
+    virtual ~A() {
+    }
+};
+
+class B : public A
+{
+public:
+    // override virtual function in A
+    void virtual_function()
+    {
+        printf("B::virtual_function called\n");
+    }
+};
+
+int main(int argc, char **argv)
+{
+    // Call to virtual_function during construction doesn't
+    // behave like normal virtual function call.
+    // Print statement shows it invokes A::virtual_function,
+    // even though we are constructing an instance of B, not A.
+    B myObject;
+
+    // This call behaves like a normal virtual function call.
+    // Print statement shows it invokes B::virtual_function.
+    myObject.virtual_function();
+}
+```
+
+
+
+### [thread](https://stackoverflow.com/questions/44832054/storing-an-stdthread-in-c11-smart-pointer)
+
+![image-20220601100826164](img/image-20220601100826164.png)
+
+### 函数重载
+
+**同一作用域内**形参不同的同名函数构成overload函数，不同作用域(派生类包含于基类作用域)，**名字查找优于类型检查**，即使Derived成员函数和Base成员函数的形参列表不同，Base的成员函数也会被隐藏掉：
+
+```cpp
+class Base
+{
+  public:
+  void f(const int);
+  // void f(int); // 顶层const形参不能形成重载,但是可以通过low-level const来形成重载：g(int&); g(const int&); g(int*); g(const int*)
+};
+class Derived: public Base
+{
+  public:
+  void f();
+};
+int main(int argc, char** argv)
+{
+  Derived d;
+  d.f(); // ok
+  d.f(10); // error
+  d.Base::f(10); // ok
+}
+```
+
+### [A Guide to Undefined Behavior in C and C++](https://blog.regehr.org/archives/213)

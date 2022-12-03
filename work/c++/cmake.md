@@ -3,6 +3,7 @@
 # CMake
 
 ## [Faq](https://gitlab.kitware.com/cmake/community/wikis/FAQ#how-do-i-use-a-different-compiler)
+
 0. [update to lasted version](https://askubuntu.com/questions/829310/how-to-upgrade-cmake-in-ubuntu)
    Check your current version with cmake --version
    Uninstall it with sudo apt remove cmake
@@ -83,6 +84,32 @@ ${UI_SRC}
 set(EXE_INSTALL_DIR "bin")
 set (exe_files ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
 install(PROGRAMS ${exe_files} DESTINATION ${EXE_INSTALL_DIR})
+
+#cpack generate deb
+set(CMAKE_INSTALL_PREFIX "/usr/local")
+set(VERSION "2.0")
+set(CPACK_PACKAGE_VERSION ${VERSION})
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Andysen")
+set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/installer")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CMAKE_SYSTEM}-${CMAKE_SYSTEM_PROCESSOR}"
+)
+include(CPack)
+
+#设置图标
+[Desktop Entry]
+Name=振镜增益标定
+Name[zh_CN]=振镜增益标定
+Comment=MEMS_Scanning_Angle
+Exec=/usr/local/bin/MEMS_Scanning_Angle
+Terminal=true
+Type=Application
+Categories=Application;
+Encoding=UTF-8
+StartupNotify=true
 ```
 
 + directory
@@ -203,7 +230,7 @@ To make the SOURCEFILES assignment visible in the root folder of your project, t
     Also, the CMakeDependentOption module allows for specifying dependencies between options.
 
 
-10. find_package
+10. [find_package](https://cwang.me/2020/02/02/cmake-notes/)
 ```cmake
 find_package(<package> [version] [EXACT] [QUIET] [MODULE]
              [REQUIRED] [[COMPONENTS] [components...]]
@@ -224,6 +251,20 @@ Config mode attempts to locate a configuration file provided by the package to b
 set(Caffe_DIR /home/wjg/projects/caffe/build)   #添加CaffeConfig.cmake的搜索路径
 find_package(Caffe REQUIRED)
 然后就可以使用Caffe_INCLUDE_LIBS, Caffe_LIBRARIES
+
+```cmake
+find_package(Qt5Widgets REQUIRED)
+
+if (Qt5Widgets_FOUND)
+    if (Qt5Widgets_FIND_VERSION VERSION_LESS 5.7.0)
+        message(FATAL_ERROR "Minimum supported Qt5 version is 5.70!")
+    endif()
+else()
+    message(SEND_ERROR "The Qt5Widgets library could not be found!")
+endif(Qt5Widgets_FOUND)
+```
+
+
 
 
 11. 获取其他工程的变量，以及工程之间的依赖，多个project时控制cmake编译顺序
@@ -515,7 +556,7 @@ set(CMAKE_C_COMPILER /opt/pgi/linux86-64/2018/bin/pgcc)
 
 ### fPIC
 
--fPIC 作用于编译阶段，在编译动态库时(.so文件)告诉编译器产生与位置无关代码(Position-Independent Code)，若未指定-fPIC选项编译.so文件，则在加载动态库时需进行重定向。
+PERMISSIONS-fPIC 作用于编译阶段，在编译动态库时(.so文件)告诉编译器产生与位置无关代码(Position-Independent Code)，若未指定-fPIC选项编译.so文件，则在加载动态库时需进行重定向。
 
 ```sh
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -555,6 +596,14 @@ Linux 下标准库链接的三种方式（全静态 , 半静态 (libgcc,libstdc+
 http://chenyufei.info/blog/2012-09-14/packaging-linux-applications/
 
 https://blog.csdn.net/sevenjoin/article/details/78041377
+
++ 查看动态库依赖
+
+  ```sh
+  ldd xxx
+  readelf -d MEMS_Scanning_Angle
+  ```
+
 
 #### Linux 下静态库（archive）的制作方式
 
@@ -784,3 +833,286 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/out/library)
 find . \( -name '*.cmake' -o -name 'CMakeLists.txt' \) -exec cmake-format -i {} \;
 ```
 
+
+
+### [cpack](https://cmake.org/cmake/help/git-stage/cpack_gen/deb.html)
+
+https://gitlab.kitware.com/cmake/community/-/wikis/doc/cpack/Configuration
+
+https://gitlab.kitware.com/cmake/community/-/wikis/doc/cpack/PackageGenerators#deb-unix-only
+
+```sh
+add_executable(
+${PROJECT_NAME}
+${UI_SRC}
+)
+set(EXE_INSTALL_DIR "bin")
+set (exe_files ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
+install(PROGRAMS ${exe_files} DESTINATION ${EXE_INSTALL_DIR})
+
+#cpack generate deb
+set(CMAKE_INSTALL_PREFIX "/usr/local")
+set(VERSION "2.0")
+set(CPACK_PACKAGE_VERSION ${VERSION})
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Andysen")
+set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/installer")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CMAKE_SYSTEM}-${CMAKE_SYSTEM_PROCESSOR}"
+)
+include(CPack)
+
+#设置图标
+[Desktop Entry]
+Name=振镜增益标定
+Name[zh_CN]=振镜增益标定
+Comment=MEMS_Scanning_Angle
+Exec=/usr/local/bin/MEMS_Scanning_Angle
+Terminal=true
+Type=Application
+Categories=Application;
+Encoding=UTF-8
+StartupNotify=true
+```
+
+[图标](https://www.jianshu.com/p/87a44a8d239f)
+
+https://www.lixf.io/2019/08/14/ubuntu-create-desktop-icon/
+
+
+
+### [cmake可访问的系统变量](https://cmake.org/cmake/help/latest/variable/ENV.html)
+
+https://cgold.readthedocs.io/en/latest/tutorials/variables/environment.html
+
+```sh
+if(DEFINED ENV{var})
+$ENV{var}
+
+set(ENV{USERNAME} "Jane Doe")
+message("Environment variable USERNAME: $ENV{USERNAME}")
+
+$ENV{HOME}
+```
+
+
+
+### [cpack安装第三方动态库](https://aimlesslygoingforward.com/blog/2014/01/19/bundling-shared-libraries-on-linux/)
+
+https://www.cnblogs.com/457220157-ftd/p/4157497.html
+
+https://cmake.org/cmake/help/latest/module/CPack.html
+
+https://juejin.im/post/5a731dd56fb9a06334263cd6
+
+```cmake
+cmake_minimum_required(VERSION 2.8.0)
+project(MEMS_Scanning_Angle)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+
+set(CMAKE_BUILD_TYPE Release) # RelWithDebInfo
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_compile_options(-fPIC)
+
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+include_directories(src include)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/mindvision)
+
+find_library(PCAP_LIBRARY pcap DOC "pcap library")
+find_path(PCAP_INCLUDE_DIR pcap.h DOC "pcap include directory")
+mark_as_advanced(PCAP_LIBRARY PCAP_INCLUDE_DIR)
+set(pcap_LIB libpcap.so)
+
+find_package(
+  Qt5
+  COMPONENTS Widgets Network
+  REQUIRED)
+
+add_definitions(-DQT_NO_KEYWORDS -g)
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${Qt5_INCLUDE_DIRS} ${PCAP_INCLUDE_DIR})
+
+set(QT_FORMS ui/main_window.ui ui/config_dialog.ui)
+
+set(HEADER_FILES src/main_window.h src/config_dialog.h src/capture_thread.h)
+
+qt5_wrap_ui(UIC_FORMS ${QT_FORMS})
+qt5_wrap_cpp(MOC_FILES ${HEADER_FILES})
+
+set(SOURCE_FILES
+    src/common.h
+    src/main_window.cpp
+    src/main.cpp
+    src/config_dialog.cpp
+    src/capture_thread.cpp
+    ${UIC_FORMS}
+    ${MOC_FILES})
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  Qt5::Core
+  Qt5::Widgets
+  Qt5::Gui
+  Qt5::Network
+  ${OpenCV_LIBRARIES}
+  ${pcap_LIB}
+  MVSDK
+  rs_mems_scanning_angle_calib)
+
+# install header files
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/" DESTINATION include)
+# install lib
+set(CAMERA_LIB ${CMAKE_CURRENT_SOURCE_DIR}/lib/mindvision/libMVSDK.so)
+set(SCAN_ANGLE_CALIB_LIB
+    ${CMAKE_CURRENT_SOURCE_DIR}/lib/librs_mems_scanning_angle_calib.so)
+install(FILES ${CAMERA_LIB} ${SCAN_ANGLE_CALIB_LIB} DESTINATION lib)
+
+set(EXE_FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
+install(PROGRAMS ${EXE_FILES} DESTINATION bin)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/README.md
+     DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/增益标定软件)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/img DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/增益标定软件)
+
+set(CMAKE_INSTALL_PREFIX "/usr")
+set(VERSION "2.0")
+set(CPACK_PACKAGE_VERSION ${VERSION})
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Andysen")
+set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/增益标定软件")
+set(CPACK_PACKAGE_FILE_NAME
+  "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CMAKE_SYSTEM_PROCESSOR}")
+include(CPack)
+```
+
+
+
+### set default release
+
+```cmake
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release
+RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+```
+
+
+
+### [modern-cmake](<https://cliutils.gitlab.io/modern-cmake/chapters/features.html>)
+
+
+
+### find files and delete
+
+```cmake
+set(RELEASE_SPACE_NAME mems_mirror_calib_release)
+file(GLOB deb_file ${CMAKE_CURRENT_SOURCE_DIR}/${RELEASE_SPACE_NAME}/${PROJECT_NAME}*.deb)
+if(EXISTS ${deb_file})
+  file(REMOVE ${deb_file})
+endif()
+```
+
+
+
+### [安装script](<https://cmake.org/cmake/help/latest/command/install.html#programs>)
+
+```sh
+install(PROGRAMS test.sh DESTINATION /usr/local/bin
+PERMISSIONS )
+```
+
+
+
+### [CMAKE_PROJECT_NAME and PROJECT_NAME](https://stackoverflow.com/questions/38938315/difference-between-cmake-project-name-and-project-name)
+
+`CMAKE_PROJECT_NAME` is a `global` and `PROJECT_NAME` is a `local` name 
+
+`CMAKE_PROJECT_NAME`: 父cmake中确定的project name;
+
+`PROJECT_NAME`: 最近原则，最近一次`project(project_name)`确定的名称
+
+
+
+## [CMAKE_BUILD_TYPE](https://dane-bulat.medium.com/cmake-how-to-inspect-and-configure-the-compiler-877e6cb0317f)
+
+对于gcc而言，如果省略`CMAKE_BUILD_TYPE`的定义，默认是`Debug`模式。
+
+```c++
+#ifdef NDEBUG
+       std::cout << "NDEBUG Defined (Release)" 
+        << std::endl << std::endl;
+   #else
+    std::cout << "NDEBUG Not Defined (Debug)" 
+                 << std::endl << std::endl;
+   #endif
+```
+
+可使用以下配置，来避免忘了配置:
+
+```cmake
+if(NOT CMAKE_BUILD_TYPE)
+     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+     message(STATUS "Using default CMAKE_BUILD_TYPE=Release")
+endif()
+```
+
+对于库可以增加后缀来[区分debug](https://cloud.tencent.com/developer/article/1433693),**但是无法对可执行文件添加后缀**。
+
+```cmake
+set_property(TARGET myTarget PROPERTY DEBUG_POSTFIX _d) 
+```
+
+https://cmake.org/cmake/help/latest/guide/tutorial/index.html
+
+https://dane-bulat.medium.com/cmake-how-to-inspect-and-configure-the-compiler-877e6cb0317f
+
+
+
+### [option and set -- CMake Cache](https://cmake.org/cmake/help/book/mastering-cmake/chapter/CMake%20Cache.html)
+
+缓存变量`cache`可以通过`option, find_file, set with CACHE`来声明。
+
+```cmake
+# option(<variable> "<help_text>" [value]) 如果没有初始值[value], 则使用OFF作为默认值; If <variable> is already set as a normal or cache variable, then the command does nothing 
+option(USE_JPEG "Do you want to use the jpeg library" ON)
+set(USE_JPEG ON CACHE BOOL "include jpeg support?")
+```
+
+如果已经定义了一个普通同名变量，`option`不会再声明`CACHE`变量。而`set`会继续定义这个`CACHE`变量，同时保留普通变量和`CACHE`变量(同名)。
+
++ option
+
+  只能声明bool类型变量，并且默认值为`OFF`。
+
+  `[cmake_dependent_option](https://cmake.org/cmake/help/latest/module/CMakeDependentOption.html#module:CMakeDependentOption)`
+
+  ```cmake
+  cmake_dependent_option(<option> "<help_text>" <value> <depends> <force>)
+  cmake_dependent_option(USE_FOO "Use Foo" ON "USE_BAR;NOT USE_ZOT" OFF)
+  ```
+
+  只有当`USE_BAR;NOT USE_ZOT`为`true, false`时，option生效并且使用赋值`ON`；否则，赋值为`OFF`，并且对用户不可见、影藏该option。只要`USE_FOO`被赋值后，后续无论`USE_BAR;NOT USE_ZOT`怎么改变，都不会改变USE_FOO的值。
+
++ [set](https://cmake.org/cmake/help/latest/command/set.html#command:set)
+
+  ```cmake
+  set(<variable> <value>... CACHE <type> <docstring> [FORCE])
+  
+  set(CRYPTOBACKEND "OpenSSL" CACHE STRING
+      "Select a cryptography backend")
+  set_property(CACHE CRYPTOBACKEND PROPERTY STRINGS
+               "OpenSSL" "LibTomCrypt" "LibDES") # 设置CRYPTOBACKEND的取值list,当使用cmake-gui进行配置时，以下拉列表的形式进行选择
+  ```
+
+  如果变量已经存在，那么该命令不做任何操作。如果想更改已经定义的变量，可以使用`FORCE`或者定义一个同名局部变量覆盖`cache`变量。
+
+  

@@ -755,3 +755,154 @@ std::sort(board_id_angle_v.begin(), board_id_angle_v.end(),
             });
 ```
 
+
+
+### [记录log](https://www.codeproject.com/Questions/97485/how-to-write-log-file-in-C)
+
+```cpp
+#include <fstream>
+
+void write_text_to_log_file( const std::string &text )
+{
+    std::ofstream log_file(
+        "log_file.txt", std::ios_base::out | std::ios_base::app );
+    log_file << text << std::end;
+}
+```
+
+### num to str
+
+```c++
+template <class T>
+std::string convertNumToStr(T num)
+{
+  std::ostringstream oss;
+  oss << num;
+  std::string str(oss.str());
+  return str;
+}
+
+template <class T>
+std::string convertNumToHexStr(T num)
+{
+  std::ostringstream oss;
+  oss << "0x" << std::hex << num;
+  std::string str(oss.str());
+  return str;
+}
+```
+
+### Array2D
+
+```c++
+template <typename T>
+class Array2D
+{
+public:
+  // constructor
+  Array2D(unsigned wd,unsigned ht)
+    : nWd(wd), nHt(ht), pAr(0)
+  {
+    if(wd > 0 && ht > 0)
+      pAr = new T[wd * ht];
+  }
+
+  // destructor
+  ~Array2D()
+  {
+    delete[] pAr;
+  }
+
+  // indexing (parenthesis operator)
+  //  two of them (for const correctness)
+
+  const T& operator () (unsigned x,unsigned y) const
+  {  return pAr[ y*nWd + x ];   }
+
+  T& operator () (unsigned x,unsigned y)
+  {  return pAr[ y*nWd + x ];   }
+
+  // get dims
+  unsigned GetWd() const { return nWd; }
+  unsigned GetHt() const { return nHt; }
+
+
+  // private data members
+private:
+  unsigned nWd;
+  unsigned nHt;
+  T*       pAr;
+
+  // to prevent unwanted copying:
+  Array2D(const Array2D<T>&);
+  Array2D& operator = (const Array2D<T>&);
+};
+
+```
+
+### c++11实现make_unique
+
+```cpp
+template<typename T, typename... Ts>
+std::unique_ptr<T> make_unique(Ts&&... params)
+{
+  return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
+}
+```
+
+### ceres cmake配置
+
+```cmake
+find_package(Eigen3 REQUIRED)
+# ceres
+find_package(Ceres REQUIRED)
+include_directories( ${EIGEN3_INCLUDE_DIRS} ${CERES_INCLDUE_DIRS})
+  target_link_libraries(target ${CERES_LIBRARIES})
+```
+
+### [GNU GCC or G++检测系统类型](https://iq.opengenus.org/detect-operating-system-in-c/)
+
+```c++
+#include <stdio.h>
+
+int main() 
+{
+	#if __APPLE__
+	    // apple specific code
+	#elif _WIN32
+	    // windows specific code
+	#elif __LINUX__
+	    // linux specific code
+	#elif BSD
+	    // BSD specific code
+	#else
+	    // general code or warning
+	#endif
+	// general code
+	return 0;
+}
+```
+
+## [一次曲线拟合](https://www.bragitoff.com/2015/09/c-program-to-linear-fit-the-data-using-least-squares-method/)
+
+![image-20220811155249973](img/image-20220811155249973.png)
+
+### [convert big-little endian](https://stackoverflow.com/questions/105252/how-do-i-convert-between-big-endian-and-little-endian-values-in-c)
+
+```cpp
+template <typename T>
+T swapEndian(T u)
+{
+  static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+  union
+  {
+    T u;
+    unsigned char u8[sizeof(T)];
+  } src, dst;
+  src.u = u;
+  for (std::size_t k = 0; k < sizeof(T); ++k)
+    dst.u8[k] = src.u8[sizeof(T) - k - 1];
+    return dst.u;
+}
+```
+

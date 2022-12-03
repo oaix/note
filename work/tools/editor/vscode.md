@@ -35,7 +35,7 @@
   - 终端中安装`clang-format`
 
   ```sh
-  sudo apt-get install clang-format-6.0 # 可选择一个高版本的比如clang-format-6.0
+  sudo apt-get install clang-format
   ```
 
   - vscode clang-format配置
@@ -139,7 +139,9 @@
   给CMakeLists.txt格式化，除了安装该插件外，系统需要安装`cmake-format`中:
 
   ```sh
-  sudo -H pip install cmake_format
+  sudo apt-get install -y python3-pip
+  sudo -H pip install --upgrade pip
+  sudo -H pip3 install cmake_format
   ```
 
   - 配置
@@ -148,7 +150,7 @@
 
     ```json
         "cmakeFormat.args": [
-            "--config-file", "/home/robosense/.vscode/.cmake-format.py", "--"
+            "--config-file", "/home/robosense/.vscode/.cmake-format.py"
         ],
         "cmakeFormat.exePath": "/usr/local/bin/cmake-format", 
     ```
@@ -254,7 +256,6 @@
       "todohighlight.isCaseSensitive": true,
   ```
 
-+ 
 
 ### [Settings Sync](https://www.cnblogs.com/lychee/p/11214032.html)
 

@@ -136,7 +136,8 @@ cv::Mat image_dest, image_src;
 memcpy(image_dest.data, image_src.data, sizeof(unsigned char)* width*height)
 ```
 
-14. camera_info_url 加载标定文件.yaml
+14. [安装flameshot](https://www.tecmint.com/install-flameshot-in-linux/)
+15. camera_info_url 加载标定文件.yaml
 ```
 <param name="camera_info_url" value="file://$(find usb_cam)/scripts/camera0.yaml" />
 ```
@@ -278,6 +279,12 @@ Eigen::Matrix4d rotation = ag.matrix();
 \#include <opencv2/core/eigen.hpp>
 
 ###   cv::FileStorage不能读unsigned int, 应该写int
+
+### 找不到xxx.so
+
+```
+LD_DEBUG=libs ldd ./xxx
+```
 
 
 
