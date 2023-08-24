@@ -503,6 +503,15 @@ git rm -f path/to/submodule
 
 
 
+### [submodule指定分支](https://www.jianshu.com/p/c1834eb4626f)
+
+```sh
+git submodule add -b master [URL to Git repo]
+git config -f .gitmodules submodule.DbConnector.branch stable
+```
+
+
+
 
 
 ### [Git 少用 Pull 多用 Fetch 和 Merge](https://www.oschina.net/translate/git-fetch-and-merge)

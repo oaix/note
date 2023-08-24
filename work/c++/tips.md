@@ -73,6 +73,41 @@ int main() {
 
 
 
+### [类模板中静态成员初始化](https://zhuanlan.zhihu.com/p/101898043)
+
+类模板里的静态成员初始化的时候，最前面要加`template<>`
+
+ia 和 da 对象是不同的模板类，因为类型参数是不一致，所以也就是不同的模板类。
+
+```c++
+template <class T>
+class A
+{
+private:
+    static int count; // 静态成员
+public:
+    A() { count ++; }
+    ~A() { count -- ; };
+    A( A & ) { count ++ ; }
+
+    static void PrintCount() { cout << count << endl; } // 静态函数
+};
+
+template<> int A<int>::count = 0;    // 初始化
+template<> int A<double>::count = 0; // 初始化
+
+int main()
+{
+    A<int> ia;  
+    A<double> da; // da和ia不是相同模板类
+    ia.PrintCount(); // 1
+    da.PrintCount(); // 1
+    return 0;
+}
+```
+
+
+
 ### [C++11中const和constexpr](https://zhuanlan.zhihu.com/p/20206577)
 
 C＋＋11中新增加了用于指示常量表达式的constexpr关键字,
@@ -579,3 +614,15 @@ int main(int argc, char** argv)
 ```
 
 ### [A Guide to Undefined Behavior in C and C++](https://blog.regehr.org/archives/213)
+
+## [unique_ptr, shared_ptr自定义deleter](https://stackoverflow.com/questions/19053351/how-do-i-use-a-custom-deleter-with-a-stdunique-ptr-member)
+
+```c++
+template <typename T>
+using DeletedUniquePtr = std::unique_ptr<T, std::function<void(T*)>>;
+DeletedUniquePtr<apriltag_family>family_ = DeletedUniquePtr<apriltag_family_t>(tagStandard41h12_create(), tagStandard41h12_destroy);
+
+apriltag_family* tagStandard41h12_create();
+void tagStandard41h12_destroy(apriltag_family*);
+```
+

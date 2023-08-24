@@ -902,7 +902,15 @@ T swapEndian(T u)
   src.u = u;
   for (std::size_t k = 0; k < sizeof(T); ++k)
     dst.u8[k] = src.u8[sizeof(T) - k - 1];
-    return dst.u;
+  return dst.u;
 }
+```
+
+## std::regex实现string.split()
+
+```cpp
+#include <regex>
+string format("192.168.0.100");
+std::regex reg("[.]"); std::vector<std::string>v(std::sregex_token_iterator(format.begin(), format.end(), reg, -1),                      std::sregex_token_iterator());
 ```
 

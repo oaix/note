@@ -85,3 +85,19 @@ void equalizeHistRGB(cv::Mat &image_src, cv::Mat &image_dst)
 }
 ```
 
+
+
+### 裁剪边缘
+
+```cpp
+cv::Mat img_raw = cv::imread(image_files_vector[i]);
+    detect the apriltag in the image
+    cv::Mat img     = cv::Mat::zeros(img_raw.size(), img_raw.type());
+    float crop_rate = 0.1f;
+    cv::Rect roi(int(img_raw.cols * crop_rate), int(img_raw.rows * crop_rate),
+                 int(img_raw.cols * (1 - 2 * crop_rate)), int(img_raw.rows * (1 - 2 * crop_rate)));
+    cv::Mat img_roi = img_raw(roi);
+    img_roi.copyTo(img(roi));
+    apriltag_ros::ApriltagVec apriltags;
+```
+

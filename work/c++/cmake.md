@@ -1116,3 +1116,7 @@ set(USE_JPEG ON CACHE BOOL "include jpeg support?")
   如果变量已经存在，那么该命令不做任何操作。如果想更改已经定义的变量，可以使用`FORCE`或者定义一个同名局部变量覆盖`cache`变量。
 
   
+
+### [CMake: Public VS Private VS Interface](https://leimao.github.io/blog/CMake-Public-Private-Interface/)
+
+类似于c++的继承类型：public, protected, private. https://kubasejdak.com/modern-cmake-is-like-inheritance

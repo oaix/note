@@ -362,3 +362,11 @@ echo "KERNEL==\"ttyUSB[0-9]*\", SUBSYSTEMS==\"usb\", ATTRS{idVendor}==\"0403\", 
 最简单的方法是使用vim打开。
 
 `:set fileencoding=utf-8`
+
+### [remove old kernels](https://www.xmodulo.com/remove-kernel-images-ubuntu.html)
+
+```sh
+dpkg --list | grep linux-image # 查看所有的images
+sudo apt purge linux-image-5.13.0-30-generic # 卸载
+```
+
