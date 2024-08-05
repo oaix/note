@@ -166,3 +166,13 @@ sudo apt-get install guvcview-qt # qt5
   ```sh
   sudo apt-get install intltool autotools-dev libsdl2-dev libsfml-dev libgtk-3-dev portaudio19-dev libpng12-dev libavcodec-dev libavutil-dev libv4l-dev libudev-dev libusb-1.0-0-dev libpulse-dev libgsl0-dev
   ```
+
+
+
+### [终端查看网速](https://blog.csdn.net/u012763794/article/details/108383717)
+
+```sh
+sudo apt install ifstat
+# ifstat
+```
+

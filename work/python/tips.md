@@ -6,6 +6,9 @@
 pool class works better when there are more processes and small IO wait. Process class works better when processes are small in number and IO operations are long. 
 
 [Python Multiprocessing: Pool vs Process - Comparative Analysis - Ellicium Solutions](https://www.ellicium.com/python-multiprocessing-pool-process/)
+
+https://zhuanlan.zhihu.com/p/652120575
+
 ```python
 
 import time
@@ -262,4 +265,13 @@ class ChildB(Base):
 + `super(cls, inst)` 获得的是 cls 在 inst 的 MRO 列表中的下一个类。
 
 It's rather hand-wavey and doesn't tell us much, but the point of `super` is not to avoid writing the parent class. The point is to ensure that the next method in line in the method resolution order (MRO) is called. This becomes important in multiple inheritance.
+
+
+
+## [ctrl+c无法关闭plt画图](https://stackoverflow.com/questions/67977761/how-to-make-plt-show-responsive-to-ctrl-c)
+
+```python
+import signal
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+```
 

@@ -914,3 +914,26 @@ string format("192.168.0.100");
 std::regex reg("[.]"); std::vector<std::string>v(std::sregex_token_iterator(format.begin(), format.end(), reg, -1),                      std::sregex_token_iterator());
 ```
 
+
+
+### 得到排序后的index，原始序列位置不变
+
+```c++
+std::vector<size_t> sort_indexes(const std::vector<Eigen::Vector3d>& v, const std::size_t _index)
+{
+
+  // initialize original index locations
+  std::vector<size_t> idx(v.size());
+  std::iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  // using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings
+  // when v contains elements of equal values
+  std::stable_sort(idx.begin(), idx.end(),
+                   [&v, _index](size_t i1, size_t i2) { return v[i1][_index] > v[i2][_index]; });
+
+  return idx;
+}
+```
+

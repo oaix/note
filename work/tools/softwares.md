@@ -18,3 +18,16 @@ drive pull (-force)
 drive push
 ```
 
+
+
+## ffmpeg图像视频
+
+1. 将图片合成视频
+
+   ```sh
+   ffmpeg -framerate 1 -i %02d.png -c:v libx264 -pix_fmt yuv420p output.mp4
+   
+   ffmpeg -framerate 30 -pattern_type glob -i './*.jpeg' -c:v libx264 -pix_fmt yuv420p output.mp4
+   ```
+   
+   

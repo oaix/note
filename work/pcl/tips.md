@@ -23,3 +23,13 @@
      const pcl::PointCloud< PointT > & 	cloud 
      )	
      ```
+
+2. [How to add a new PointT type](https://pointclouds.org/documentation/tutorials/adding_custom_ptype.html#id5)
+
+   pcl template class/function实例化了所有已经定义的point类型(用户调用时，无需再次编译，加速编译过程)，如果自定义新的PointT，需要在cpp顶部添加:
+
+   ```cpp
+   #define PCL_NO_PRECOMPILE
+   ```
+
+   让pcl使用PointT实例化template class/function，并编译；这样PointT才可调用pcl库class/function.

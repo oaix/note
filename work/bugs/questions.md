@@ -234,14 +234,32 @@ void pcl::getTranslationAndEulerAngles (const Eigen::Affine3f& t,
      pitch = asinf(-t(2,0)); // [-pi/2, pi/2]
      yaw   = atan2f(t(1,0), t(0,0));  // [-pi, pi]
    }
+// https://stackoverflow.com/questions/15022630/how-to-calculate-the-angle-from-rotation-matrix
 ```
   (2) Eigen的矩阵成员函数eulerAngles()返回zyx的旋转顺序
 ```cpp
-Eigen::Vector3d angle = rotation.eulerAngles(0, 1, 2); // [0, pi], [-pi, pi], [-pi, pi]
-Eigen::Quaterniond ag = Eigen::AngleAxisd(angle(0),  Eigen::Vector3d::UnitX())
-                             *  Eigen::AngleAxisd(angle(1),  Eigen::Vector3d::UnitY())
-                             *  Eigen::AngleAxisd(angle(2), Eigen::Vector3d::UnitZ());
-Eigen::Matrix4d rotation = ag.matrix();
+Eigen::Vector3d angle = rotation.eulerAngles(2, 1, 0); // [0, pi], [-pi, pi], [-pi, pi]
+// angle[0]: yaw-z
+// angle[1]: pitch-y
+// angle[2]: roll -x
+
+Eigen::Matrix4f poseToMatrix(const double& _pose_x,
+                             const double& _pose_y,
+                             const double& _pose_z,
+                             const double& _pose_roll,
+                             const double& _pose_pitch,
+                             const double& _pose_yaw)
+{
+  /// generate transform matrix according to current pose
+  Eigen::AngleAxisf current_rotation_x(_pose_roll, Eigen::Vector3f::UnitX());
+  Eigen::AngleAxisf current_rotation_y(_pose_pitch, Eigen::Vector3f::UnitY());
+  Eigen::AngleAxisf current_rotation_z(_pose_yaw, Eigen::Vector3f::UnitZ());
+  Eigen::Translation3f current_translation(_pose_x, _pose_y, _pose_z);
+  Eigen::Matrix4f transform_matrix =
+    (current_translation * current_rotation_z * current_rotation_y * current_rotation_x).matrix(); // 旋转轴变化，内旋，右乘
+
+  return transform_matrix;
+}
 ```
 
 

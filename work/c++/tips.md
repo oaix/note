@@ -110,6 +110,10 @@ int main()
 
 ### [C++11中const和constexpr](https://zhuanlan.zhihu.com/p/20206577)
 
+![image-20231009202957193](./img/image-20231009202957193.png)
+
+[按照顺时针(从变量名开始)来分割](https://c-faq.com/decl/spiral.anderson.html): `char* str[10];`。
+
 C＋＋11中新增加了用于指示常量表达式的constexpr关键字,
 ![aca0fcf4](img/aca0fcf4.png)
 
@@ -382,7 +386,7 @@ put( ) ：在内存中写入一个字节到文件
 
 
 
-### [typedef vs define](https://softwareengineering.stackexchange.com/questions/130679/typedefs-and-defines)
+### [typedef vs define vs using](https://softwareengineering.stackexchange.com/questions/130679/typedefs-and-defines)
 
 A `typedef` is generally preferred unless there's some odd reason that you specifically need a macro. 推荐使用`typedef`，macro做文本替换，typedef给其一个别名。
 
@@ -394,6 +398,37 @@ CHAR_PTR c, d;
 // a, b, and c are all pointers, but d is a char, because the last line expands to:
 char *c;
 char d;
+```
+
+[typydef vs using](https://www.educba.com/c-plus-plus-using-vs-typedef/):
+
+ ‘typedef’  does not work with templates. When it comes to work on non-templates, both ‘using’ and ‘typedef’ perform mechanically the same. 
+
+1. 对于函数指针，`using`更加简洁。
+2. 包含模板的别名只能用`using`声明，并且不能出现在class内部
+3. `using`更加简洁，适应后期更改
+4. `typedef`允许在多个文件使用相同的变量声明相同的类型
+5. `typedef`一行可同时声明多个不同类型的别名
+
+```c++
+// C++11
+using counter = long;
+// C++03 equivalent:
+// typedef long counter;
+
+// C++11
+using func = void(*)(int);
+// C++03 equivalent:
+// typedef void (*func)(int);
+// func can be assigned to a function pointer value
+void actual_function(int arg) { /* some code */ }
+func fptr = &actual_function;
+
+template<typename T> using ptr = T*; // 模板别名不能在class内部声明
+// the name 'ptr<T>' is now an alias for pointer to T
+ptr<int> ptr_int;
+
+typedef int X, *ptr, (*Func)(); // “typedef”允许程序员一次声明多个类型，这与“using”语句不同
 ```
 
 
@@ -522,7 +557,13 @@ class B : public A {
 
 ```
 
-抽象类无法创建对象；即使提供纯虚函数的默认实现，也不行。
+抽象类无法创建对象，[**即使给纯虚函数提供了默认实现**](https://stackoverflow.com/questions/2089083/pure-virtual-function-with-implementation)，也[不能实例化抽象类](https://stackoverflow.com/questions/5131567/why-cant-we-create-an-instance-of-an-abstract-class)：
+
+1. 纯虚函数没有实现
+2. 与多态机制相悖，直接实例化抽象类，相应的纯虚函数没有实现，无法建立vtable
+3. 抽象类存在的意义是提供统一接口，并不是为了直接使用，实例化抽象类毫无意义；如果需要实例化该类，就不应该声明为纯虚类。
+
+不提供构造函数, 提供的话, 声明为 `protected`；即使提供纯虚函数的默认实现，也不行。
 To be clear, you are misunderstanding what = 0; after a virtual function means.
 
 **= 0 means derived classes shold provide an implementation, not that the base class can not provide an implementation.**
@@ -582,6 +623,8 @@ int main(int argc, char **argv)
 }
 ```
 
+### [abstract class destructor be public and virtual](https://leimao.github.io/blog/CPP-Base-Class-Destructors/)
+
 
 
 ### [thread](https://stackoverflow.com/questions/44832054/storing-an-stdthread-in-c11-smart-pointer)
@@ -626,3 +669,25 @@ apriltag_family* tagStandard41h12_create();
 void tagStandard41h12_destroy(apriltag_family*);
 ```
 
+
+
+## [std::vector<bool>每个元素存储的不是bool变量](https://stackoverflow.com/questions/17794569/why-isnt-vectorbool-a-stl-container/17794965#17794965)
+
+std::vector<bool> v(2, true); 为了空间优化，每个元素只有1 bit
+
+不能直接将元素赋值给bool类型：
+
+```c++
+bool* flag = &v[0]; // can't compile
+if (v[0] && a > 0) // 不能直接求&&
+```
+
+
+
+### [template class with virtual functions](https://rivermatrix.com/c-templates-with-virtual-functions/)
+
+c++不允许模板类含有虚函数，C++ expressly forbids virtual template functions because the virtual tables that would have to be built are way too complex. 
+
+难以建立vtable.
+
+`但是Policy Based Design`可以实现该功能，策略模式。

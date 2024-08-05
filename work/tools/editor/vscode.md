@@ -270,3 +270,15 @@ https://erdalpekel.de/?p=157
 https://medium.com/@tahsincankose/a-decent-integration-of-vscode-to-ros-4c1d951c982a
 
 https://blog.csdn.net/Kalenee/article/details/103828448
+
+
+
+## ssh免密
+
+```sh
+# 客户端
+cat ~/.ssh/id_rsa.pub #复制
+# 服务端
+vim ~/.ssh/authorized_keys # 粘贴
+```
+
